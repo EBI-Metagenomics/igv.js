@@ -1,0 +1,38 @@
+<script src="./igv.min.js"></script>
+<div id="igv-div">
+
+</div>
+<script type="text/javascript">
+    var igvDiv = document.getElementById("igv-div");
+    var options =
+        {
+            reference: {
+                id: 'myid',
+                fastaURL: "/MGYG-HGUT-01690.fna",
+                indexURL: "/MGYG-HGUT-01690.fna.fai",
+                index: true
+            },
+            tracks: [
+                {
+                    name: "GUT_GENOME_00001",
+                    url: "/MGYG-HGUT-01690.gff",
+                    format: "gff",
+                    displayMode: "EXPANDED",
+                }
+            ],
+            color_fields: [
+                'COG',
+                'product',
+                'Pfam',
+                'KEGG',
+                'InterPro',
+                'eggNOG'
+            ]
+        };
+
+    window.igv_config = options;
+    igv.createBrowser(igvDiv, options)
+    .then(function (browser) {
+        console.log("Created IGV browser");
+    })
+</script>
