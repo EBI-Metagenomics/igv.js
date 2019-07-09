@@ -23,6 +23,29 @@
  * THE SOFTWARE.
  */
 
+function getProductColor(product) {
+    let color;
+    if (product in window.colors) {
+        color = window.colors[product];
+    } else {
+        color = getRandomColor();
+        window.colors[product] = color;
+    }
+    return color;
+
+}
+
+function getRandomColor() {
+    var letters = '0123456789ABCDEF';
+    var color = '#';
+    for (var i = 0; i < 6; i++) {
+        color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
+}
+
+window.colors = {};
+
 var igv = (function (igv) {
 
     "use strict";
@@ -550,9 +573,30 @@ var igv = (function (igv) {
                     igv.graphics.strokeLine(ctx, x - direction * 2, cy - 2, x, cy);
                     igv.graphics.strokeLine(ctx, x - direction * 2, cy + 2, x, cy);
                 }
+
+
+                let srcField, reg;
+                if (window.hasOwnProperty('colorBy')){
+                    srcField = window.colorBy;
+                    reg = new RegExp(srcField+'=([^;]+)');
+                }
+
+
                 for (let e = 0; e < exonCount; e++) {
                     // draw the exons
                     const exon = feature.exons[e];
+                    if (window.hasOwnProperty('colorBy')){
+                        const match = reg.exec(exon['attributeString']);
+                        try{
+                            color = getProductColor(match[1]);
+                        } catch(e){
+                            console.error(e);
+                            console.error(match);
+                            console.error(exon['attributeString']);
+                            color = window.defaultColor;
+                        }
+                        ctx.fillStyle = color;
+                    }
                     let ePx = Math.round((exon.start - bpStart) / xScale);
                     let ePx1 = Math.round((exon.end - bpStart) / xScale);
                     let ePw = Math.max(1, ePx1 - ePx);

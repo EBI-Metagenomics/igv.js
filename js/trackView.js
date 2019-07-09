@@ -311,9 +311,15 @@ var igv = (function (igv) {
     igv.TrackView.prototype.setColor = function (color) {
         this.track.color = color;
         this.track.config.color = color;
+        window.defaultColor = color;
+        delete window.colorBy;
         this.repaintViews(true);
     };
 
+    igv.TrackView.prototype.setColorSource = function (srcName){
+        window.colorBy = srcName;
+        this.repaintViews(true);
+    };
     igv.TrackView.prototype.createColorPicker = function () {
 
         let self = this;
@@ -332,7 +338,7 @@ var igv = (function (igv) {
 
         this.colorPicker = new igv.genericContainer(config);
 
-        igv.createColorSwatchSelector(this.colorPicker.$container, rgb => this.setColor(rgb), this.track.color);
+        igv.createColorSwatchSelector(this.colorPicker.$container, rgb => this.setColor(rgb), rgb => this.setColorSource(rgb), this.track.color);
 
         self.colorPicker.$container.hide();
 
@@ -657,7 +663,7 @@ var igv = (function (igv) {
         this.scrollbar.moveScrollerBy(delta);
     };
 
-    igv.createColorSwatchSelector = function ($genericContainer, colorHandler, defaultColor) {
+    igv.createColorSwatchSelector = function ($genericContainer, colorHandler, colorSrcHandler, defaultColor) {
 
         let appleColors = Object.values(igv.appleCrayonPalette);
 
@@ -702,6 +708,20 @@ var igv = (function (igv) {
             }
 
         }
+        const types = window.igv_config['color_fields'];
+        const $div  = $('<div style="clear:both"></div>');
+        $genericContainer.append($($div));
+        const $select = $('<select></select>');
+        $div.append($select);
+        for (let entry of types){
+            const $option = $('<option value="'+entry+'">'+entry+'</option>');
+            $select.append($option);
+        }
+        $select.change(() => {
+            const type = $select.val();
+            colorSrcHandler(type);
+            console.error(type);
+        });
 
     };
 
