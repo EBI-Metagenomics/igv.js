@@ -590,9 +590,9 @@ var igv = (function (igv) {
                         try{
                             color = getProductColor(match[1]);
                         } catch(e){
-                            console.error(e);
-                            console.error(match);
-                            console.error(exon['attributeString']);
+                            console.debug(e);
+                            console.debug(match);
+                            console.debug(exon['attributeString']);
                             color = window.defaultColor;
                         }
                         ctx.fillStyle = color;

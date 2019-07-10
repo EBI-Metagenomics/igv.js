@@ -19989,9 +19989,10 @@ var igv = (function (igv) {
         this.alignmentContainer = undefined;
         this.maxRows = config.maxRows || 1000;
 
-        if (igv.isFilePath(config.url)) {
-            // do nothing
-        } else if (igv.isString(config.url) && config.url.startsWith("data:")) {
+        if (igv.isString(config.url) && config.url.startsWith("data:")) {
+            if("cram" === config.format) {
+                throw "CRAM data uris are not supported"
+            }
             this.config.indexed = false;
         }
 
@@ -31738,6 +31739,29 @@ var igv = (function (igv) {
  * THE SOFTWARE.
  */
 
+function getProductColor(product) {
+    let color;
+    if (product in window.colors) {
+        color = window.colors[product];
+    } else {
+        color = getRandomColor();
+        window.colors[product] = color;
+    }
+    return color;
+
+}
+
+function getRandomColor() {
+    var letters = '0123456789ABCDEF';
+    var color = '#';
+    for (var i = 0; i < 6; i++) {
+        color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
+}
+
+window.colors = {};
+
 var igv = (function (igv) {
 
     "use strict";
@@ -32265,9 +32289,30 @@ var igv = (function (igv) {
                     igv.graphics.strokeLine(ctx, x - direction * 2, cy - 2, x, cy);
                     igv.graphics.strokeLine(ctx, x - direction * 2, cy + 2, x, cy);
                 }
+
+
+                let srcField, reg;
+                if (window.hasOwnProperty('colorBy')){
+                    srcField = window.colorBy;
+                    reg = new RegExp(srcField+'=([^;]+)');
+                }
+
+
                 for (let e = 0; e < exonCount; e++) {
                     // draw the exons
                     const exon = feature.exons[e];
+                    if (window.hasOwnProperty('colorBy')){
+                        const match = reg.exec(exon['attributeString']);
+                        try{
+                            color = getProductColor(match[1]);
+                        } catch(e){
+                            console.debug(e);
+                            console.debug(match);
+                            console.debug(exon['attributeString']);
+                            color = window.defaultColor;
+                        }
+                        ctx.fillStyle = color;
+                    }
                     let ePx = Math.round((exon.start - bpStart) / xScale);
                     let ePx1 = Math.round((exon.end - bpStart) / xScale);
                     let ePw = Math.max(1, ePx1 - ePx);
@@ -32603,7 +32648,6 @@ var igv = (function (igv) {
                     bucket,
                     feature,
                     gap = 2,
-                    packedRows = [],
                     bucketStart;
 
                 start = features[0].start;
@@ -32624,7 +32668,8 @@ var igv = (function (igv) {
 
                 row = 0;
 
-                while (allocatedCount < features.length && packedRows.length < maxRows) {
+
+                while (allocatedCount < features.length && row <= maxRows) {
 
 
                     while (nextStart <= end) {
@@ -33283,10 +33328,10 @@ var igv = (function (igv) {
 /**
  * Created by jrobinso on 7/5/18.
  */
+"use strict";
+
 
 var igv = (function (igv) {
-
-    "use strict";
 
     if (!igv.trackFactory) {
         igv.trackFactory = {};
@@ -34992,6 +35037,1022 @@ var igv = (function (igv) {
     return igv;
 
 })(igv || {});
+
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2014 Broad Institute
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
+var igv = (function (igv) {
+
+    "use strict";
+
+    var CigarOperationTable = {
+        "ALIGNMENT_MATCH": "M",
+        "INSERT": "I",
+        "DELETE": "D",
+        "SKIP": "N",
+        "CLIP_SOFT": "S",
+        "CLIP_HARD": "H",
+        "PAD": "P",
+        "SEQUENCE_MATCH": "=",
+        "SEQUENCE_MISMATCH": "X"
+    }
+
+    igv.Ga4ghAlignmentReader = function (config, genome) {
+
+        this.config = config;
+        this.genome = genome;
+        this.url = config.url;
+        this.filter = new igv.BamFilter(config.filter);
+        this.readGroupSetIds = config.readGroupSetIds;
+        this.authKey = config.authKey;   // Might be undefined or nill
+
+        this.samplingWindowSize = config.samplingWindowSize === undefined ? 100 : config.samplingWindowSize;
+        this.samplingDepth = config.samplingDepth === undefined ? 100 : config.samplingDepth;
+        if (config.viewAsPairs) {
+            this.pairsSupported = true;
+        }
+        else {
+            this.pairsSupported = config.pairsSupported === undefined ? true : config.pairsSupported;
+        }
+    }
+
+
+    igv.Ga4ghAlignmentReader.prototype.readAlignments = function (chr, bpStart, bpEnd) {
+
+        const genome = this.genome;
+        const self = this;
+
+        return getChrAliasTable()
+
+            .then(function (chrAliasTable) {
+
+                var queryChr = chrAliasTable.hasOwnProperty(chr) ? chrAliasTable[chr] : chr,
+                    readURL = self.url + "/reads/search";
+
+                return igv.ga4ghSearch({
+                    url: readURL,
+                    body: {
+                        "readGroupSetIds": [self.readGroupSetIds],
+                        "referenceName": queryChr,
+                        "start": bpStart,
+                        "end": bpEnd,
+                        "pageSize": "10000"
+                    },
+                    decode: decodeGa4ghReads,
+                    results: new igv.AlignmentContainer(chr, bpStart, bpEnd, self.samplingWindowSize, self.samplingDepth, self.pairsSupported)
+                })
+            });
+
+
+        function getChrAliasTable() {
+
+            if (self.chrAliasTable) {
+
+                return Promise.resolve(self.chrAliasTable);
+
+            } else {
+
+                return self.readMetadata()
+
+                    .then(function (json) {
+
+                        self.chrAliasTable = {};
+
+                        if (genome && json.readGroups && json.readGroups.length > 0) {
+
+                            var referenceSetId = json.readGroups[0].referenceSetId;
+
+                            if (referenceSetId) {
+
+                                // Query for reference names to build an alias table (map of genome ref names -> dataset ref names)
+                                var readURL = self.url + "/references/search";
+
+                                return igv.ga4ghSearch({
+                                    url: readURL,
+                                    body: {
+                                        "referenceSetId": referenceSetId
+                                    },
+                                    decode: function (j) {
+                                        return j.references;
+                                    }
+                                })
+                                    .then(function (references) {
+
+
+                                        references.forEach(function (ref) {
+                                            var refName = ref.name,
+                                                alias = genome.getChromosomeName(refName);
+                                            self.chrAliasTable[alias] = refName;
+                                        });
+
+
+                                        return self.chrAliasTable;
+
+                                    })
+                            }
+                            else {
+
+                                // Try hardcoded constants -- workaround for non-compliant data at Google
+                                populateChrAliasTable(self.chrAliasTable, self.config.datasetId);
+
+                                return self.chrAliasTable;
+                            }
+                        }
+
+                        else {
+                            // No browser object, can't build map.  This can occur when run from unit tests
+                            fulfill(self.chrAliasTable);
+                        }
+                    })
+            }
+        }
+
+        /**
+         * Decode an array of ga4gh read records
+         *
+
+         */
+        function decodeGa4ghReads(json) {
+
+            var i,
+                jsonRecords = json.alignments,
+                len = jsonRecords.length,
+                json,
+                alignment,
+                jsonAlignment,
+                cigarDecoded,
+                alignments = [],
+                mate,
+                blocks;
+
+            for (i = 0; i < len; i++) {
+
+                json = jsonRecords[i];
+
+                alignment = new igv.BamAlignment();
+
+                alignment.readName = json.fragmentName;
+                alignment.properPlacement = json.properPlacement;
+                alignment.duplicateFragment = json.duplicateFragment;
+                alignment.numberReads = json.numberReads;
+                alignment.fragmentLength = json.fragmentLength;
+                alignment.readNumber = json.readNumber;
+                alignment.failedVendorQualityChecks = json.failedVendorQualityChecks;
+                alignment.secondaryAlignment = json.secondaryAlignment;
+                alignment.supplementaryAlignment = json.supplementaryAlignment;
+                alignment.seq = json.alignedSequence;
+                alignment.qual = json.alignedQuality;
+                alignment.matePos = json.nextMatePosition;
+                alignment.tagDict = json.info;
+                alignment.flags = encodeFlags(json);
+
+
+                jsonAlignment = json.alignment;
+                if (jsonAlignment) {
+                    alignment.mapped = true;
+
+                    alignment.chr = json.alignment.position.referenceName;
+                    if (genome) alignment.chr = genome.getChromosomeName(alignment.chr);
+
+                    alignment.start = parseInt(json.alignment.position.position);
+                    alignment.strand = !(json.alignment.position.reverseStrand);
+                    alignment.mq = json.alignment.mappingQuality;
+                    alignment.cigar = encodeCigar(json.alignment.cigar);
+                    cigarDecoded = translateCigar(json.alignment.cigar);
+
+                    alignment.lengthOnRef = cigarDecoded.lengthOnRef;
+
+                    blocks = makeBlocks(alignment, cigarDecoded.array);
+                    alignment.blocks = blocks.blocks;
+                    alignment.insertions = blocks.insertions;
+
+                }
+                else {
+                    alignment.mapped = false;
+                }
+
+                mate = json.nextMatePosition;
+                if (mate) {
+                    alignment.mate = {
+                        chr: mate.referenceFrame,
+                        position: parseInt(mate.position),
+                        strand: !mate.reverseStrand
+                    };
+                }
+
+                if (self.filter.pass(alignment)) {
+                    alignments.push(alignment);
+                }
+
+
+            }
+
+            return alignments;
+
+
+            // Encode a cigar string -- used for popup text
+            function encodeCigar(cigarArray) {
+
+                var cigarString = "";
+                cigarArray.forEach(function (cigarUnit) {
+                    var op = CigarOperationTable[cigarUnit.operation],
+                        len = cigarUnit.operationLength;
+                    cigarString = cigarString + (len + op);
+                });
+
+                return cigarString;
+            }
+
+            // TODO -- implement me
+            function encodeFlags(json) {
+                return 0;
+            }
+
+            function translateCigar(cigar) {
+
+                var cigarUnit, opLen, opLtr,
+                    lengthOnRef = 0,
+                    cigarArray = [],
+                    i;
+
+                for (i = 0; i < cigar.length; i++) {
+
+                    cigarUnit = cigar[i];
+
+                    opLtr = CigarOperationTable[cigarUnit.operation];
+                    opLen = parseInt(cigarUnit.operationLength);    // Google represents long as a String
+
+                    if (opLtr === 'M' || opLtr === 'EQ' || opLtr === 'X' || opLtr === 'D' || opLtr === 'N' || opLtr === '=')
+                        lengthOnRef += opLen;
+
+                    cigarArray.push({len: opLen, ltr: opLtr});
+
+                }
+
+                return {lengthOnRef: lengthOnRef, array: cigarArray};
+            }
+
+
+            /**
+             * Split the alignment record into blocks as specified in the cigarArray.  Each aligned block contains
+             * its portion of the read sequence and base quality strings.  A read sequence or base quality string
+             * of "*" indicates the value is not recorded.  In all other cases the length of the block sequence (block.seq)
+             * and quality string (block.qual) must == the block length.
+             *
+             * NOTE: Insertions are not yet treated // TODO
+             *
+             * @param record
+             * @param cigarArray
+             * @returns array of blocks
+             */
+            function makeBlocks(record, cigarArray) {
+
+
+                var blocks = [],
+                    insertions,
+                    seqOffset = 0,
+                    pos = record.start,
+                    len = cigarArray.length,
+                    gapType;
+
+                for (var i = 0; i < len; i++) {
+
+                    var c = cigarArray[i];
+
+                    switch (c.ltr) {
+                        case 'H' :
+                            break; // ignore hard clips
+                        case 'P' :
+                            break; // ignore pads
+                        case 'S' :
+                            seqOffset += c.len;
+                            gapType = 'S';
+                            break; // soft clip read bases
+                        case 'N' :
+                            pos += c.len;
+                            gapType = 'N';
+                            break;  // reference skip
+                        case 'D' :
+                            pos += c.len;
+                            gapType = 'D';
+                            break;
+                        case 'I' :
+                            if (insertions === undefined) insertions = [];
+                            insertions.push(new igv.AlignmentBlock({
+                                start: pos,
+                                len: c.len,
+                                seqOffset: seqOffset
+                            }));
+                            seqOffset += c.len;
+                            break;
+                        case 'M' :
+                        case 'EQ' :
+                        case '=' :
+                        case 'X' :
+                            blocks.push(
+                                new igv.AlignmentBlock({
+                                    start: pos,
+                                    len: c.len,
+                                    seqOffset: seqOffset,
+                                    gapType: gapType
+                                }));
+                            seqOffset += c.len;
+                            pos += c.len;
+
+                            break;
+
+                        default :
+                            console.log("Error processing cigar element: " + c.len + c.ltr);
+                    }
+                }
+
+                return {blocks: blocks, insertions: insertions};
+            }
+        }
+    }
+
+
+    igv.Ga4ghAlignmentReader.prototype.readMetadata = function () {
+
+        return igv.ga4ghGet({
+            url: this.url,
+            entity: "readgroupsets",
+            entityId: this.readGroupSetIds
+        });
+    }
+
+    igv.decodeGa4ghReadset = function (json) {
+
+        var sequenceNames = [],
+            fileData = json["fileData"];
+
+        fileData.forEach(function (fileObject) {
+
+            var refSequences = fileObject["refSequences"];
+
+            refSequences.forEach(function (refSequence) {
+                sequenceNames.push(refSequence["name"]);
+            });
+        });
+
+        return sequenceNames;
+    }
+
+
+    /**
+     * Hardcoded hack to work around some non-compliant google datasets
+     *
+     * @param chrAliasTable
+     * @param datasetId
+     */
+    function populateChrAliasTable(chrAliasTable, datasetId) {
+        var i;
+        if ("461916304629" === datasetId || "337315832689" === datasetId) {
+            for (i = 1; i < 23; i++) {
+                chrAliasTable["chr" + i] = i;
+            }
+            chrAliasTable["chrX"] = "X";
+            chrAliasTable["chrY"] = "Y";
+            chrAliasTable["chrM"] = "MT";
+        }
+    }
+
+
+    return igv;
+
+})(igv || {});
+
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2014 Broad Institute
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
+var igv = (function (igv) {
+
+    /**
+     *
+     * @param options
+     */
+    igv.ga4ghGet = function (options) {
+        var url = options.url + "/" + options.entity + "/" + options.entityId;
+        options.headers = ga4ghHeaders();
+        return igv.xhr.loadJson(url, options);      // Returns a promise
+    }
+
+    igv.ga4ghSearch = function (options) {
+        return new Promise(function (fulfill, reject) {
+            var results = options.results ? options.results : [],
+                url = options.url,
+                body = options.body,
+                decode = options.decode,
+                apiKey = igv.google.apiKey,
+                paramSeparator = "?",
+                fields = options.fields;  // Partial response
+
+
+            if (apiKey) {
+                url = url + paramSeparator + "key=" + apiKey;
+                paramSeparator = "&";
+            }
+
+            if (fields) {
+                url = url + paramSeparator + "fields=" + fields;
+            }
+
+
+            // Start the recursive load cycle.  Data is fetched in chunks, if more data is available a "nextPageToken" is returned.
+            return loadChunk();
+
+            function loadChunk(pageToken) {
+
+                if (pageToken) {
+                    body.pageToken = pageToken;
+                }
+                else {
+                    if (body.pageToken != undefined) delete body.pageToken;    // Remove previous page token, if any
+                }
+
+                var sendData = JSON.stringify(body);
+
+                igv.xhr.loadJson(url, {
+                        sendData: sendData,
+                        contentType: "application/json",
+                        headers: ga4ghHeaders(),
+                    //    oauthToken: ga4ghToken()
+                    })
+                    .then(function (json) {
+                        var nextPageToken, tmp;
+
+                        if (json) {
+
+                            tmp = decode ? decode(json) : json;
+
+                            if (tmp) {
+
+                                tmp.forEach(function (a) {
+                                    var keep = true;           // TODO -- conditionally keep (downsample)
+                                    if (keep) {
+                                        results.push(a);
+                                    }
+                                });
+                            }
+
+
+                            nextPageToken = json["nextPageToken"];
+
+                            if (nextPageToken) {
+                                loadChunk(nextPageToken);
+                            }
+                            else {
+                                fulfill(results);
+                            }
+                        }
+                        else {
+                            fulfill(results);
+                        }
+
+                    })
+                    .catch(function (error) {
+                        reject(error);
+                    });
+            }
+
+        });
+
+
+    }
+
+    igv.ga4ghSearchReadGroupSets = function (options) {
+
+        igv.ga4ghSearch({
+            url: options.url + "/readgroupsets/search",
+            body: {
+                "datasetIds": [options.datasetId],
+
+                "pageSize": "10000"
+            },
+            decode: function (json) {
+                return json.readGroupSets;
+            }
+        }).then(function (results) {
+            options.success(results);
+        }).catch(function (error) {
+            console.log(error);
+        });
+    }
+
+    igv.ga4ghSearchVariantSets = function (options) {
+
+        igv.ga4ghSearch({
+            url: options.url + "/variantsets/search",
+            body: {
+                "datasetIds": [options.datasetId],
+                "pageSize": "10000"
+            },
+            decode: function (json) {
+                return json.variantSets;
+            }
+        }).then(function (results) {
+            options.success(results);
+        }).catch(function (error) {
+            console.log(error);
+        });
+    }
+
+    igv.ga4ghSearchCallSets = function (options) {
+
+        // When searching by dataset id, first must get variant sets.
+        if (options.datasetId) {
+
+            igv.ga4ghSearchVariantSets({
+
+                url: options.url,
+                datasetId: options.datasetId,
+                success: function (results) {
+
+                    var variantSetIds = [];
+                    results.forEach(function (vs) {
+                        variantSetIds.push(vs.id);
+                    });
+
+                    // Substitute variantSetIds for datasetId
+                    options.datasetId = undefined;
+                    options.variantSetIds = variantSetIds;
+                    igv.ga4ghSearchCallSets(options);
+
+
+                }
+            });
+
+        }
+
+        else {
+
+            igv.ga4ghSearch({
+                url: options.url + "/callsets/search",
+                body: {
+                    "variantSetIds": options.variantSetIds,
+                    "pageSize": "10000"
+                },
+                decode: function (json) {
+
+                    if (json.callSets) json.callSets.forEach(function (cs) {
+                        cs.variantSetIds = options.variantSetIds;
+                    });
+
+                    return json.callSets;
+                }
+            }).then(function (results) {
+                options.success(results);
+            }).catch(function (error) {
+                console.log(error);
+            });
+        }
+    }
+
+
+    /**
+     * Method to support ga4gh application
+     *
+     * @param options
+     */
+    igv.ga4ghSearchReadAndCallSets = function (options) {
+
+        igv.ga4ghSearchReadGroupSets({
+            url: options.url,
+            datasetId: options.datasetId,
+            success: function (readGroupSets) {
+                igv.ga4ghSearchCallSets({
+                    url: options.url,
+                    datasetId: options.datasetId,
+                    success: function (callSets) {
+
+                        // Merge call sets and read group sets
+
+                        var csHash = {};
+                        callSets.forEach(function (cs) {
+                            csHash[cs.name] = cs;
+                        });
+
+                        var mergedResults = [];
+                        readGroupSets.forEach(function (rg) {
+                            var m = {readGroupSetId: rg.id, name: rg.name, datasetId: options.datasetId},
+                                cs = csHash[rg.name];
+                            if (cs) {
+                                m.callSetId = cs.id;
+                                m.variantSetIds = cs.variantSetIds;
+                            }
+                            mergedResults.push(m);
+                        });
+
+                        options.success(mergedResults);
+
+                    }
+                });
+            }
+        });
+
+    }
+
+    function ga4ghHeaders() {
+        return {
+            "Cache-Control": "no-cache"
+        };
+	}
+
+    return igv;
+
+})(igv || {});
+
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2014 Broad Institute
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
+var igv = (function (igv) {
+
+
+    igv.Ga4ghVariantReader = function (config, genome) {
+
+        this.config = config;
+        this.genome = genome;
+        this.url = config.url;
+        this.variantSetId = config.variantSetId;
+        this.callSetIds = config.callSetIds;
+        this.includeCalls = (config.includeCalls === undefined ? true : config.includeCalls);
+
+    }
+
+    // Simulate a VCF file header
+    igv.Ga4ghVariantReader.prototype.readHeader = function () {
+
+        var self = this;
+
+
+        if (self.header) {
+            return Promise.resolve(self.header);
+        }
+
+        else {
+
+            self.header = {};
+
+            if (self.includeCalls === false) {
+                return Promise.resolve(self.header);
+            }
+            else {
+
+                var readURL = self.url + "/callsets/search";
+
+                return igv.ga4ghSearch({
+                    url: readURL,
+                    fields: "nextPageToken,callSets(id,name)",
+                    body: {
+                        "variantSetIds": (Array.isArray(self.variantSetId) ? self.variantSetId : [self.variantSetId]),
+                        "pageSize": "10000"
+                    },
+                    decode: function (json) {
+                        // If specific callSetIds are specified filter to those
+                        if (self.callSetIds) {
+                            var filteredCallSets = [],
+                                csIdSet = new Set();
+
+                            self.callSetIds.forEach(function (csid) {
+                                csIdSet.add(csid);
+                            })
+                            json.callSets.forEach(function (cs) {
+                                if (csIdSet.has(cs.id)) {
+                                    filteredCallSets.push(cs);
+                                }
+                            });
+                            return filteredCallSets;
+                        }
+                        else {
+                            return json.callSets;
+                        }
+                    }
+                })
+                    .then(function (callSets) {
+                        self.header.callSets = callSets;
+                        return self.header;
+                    })
+            }
+        }
+    }
+
+
+    igv.Ga4ghVariantReader.prototype.readFeatures = function (chr, bpStart, bpEnd) {
+
+        const self = this;
+        const genome = this.genome;
+
+        return self.readHeader()
+
+            .then(function (header) {
+                return getChrAliasTable()
+            })
+
+            .then(function (chrAliasTable) {
+
+                var queryChr = chrAliasTable.hasOwnProperty(chr) ? chrAliasTable[chr] : chr,
+                    readURL = self.url + "/variants/search";
+
+                return igv.ga4ghSearch({
+                    url: readURL,
+                    fields: (self.includeCalls ? undefined : "nextPageToken,variants(id,variantSetId,names,referenceName,start,end,referenceBases,alternateBases,quality,filter,info)"),
+                    body: {
+                        "variantSetIds": (Array.isArray(self.variantSetId) ? self.variantSetId : [self.variantSetId]),
+                        "callSetIds": (self.callSetIds ? self.callSetIds : undefined),
+                        "referenceName": queryChr,
+                        "start": bpStart.toString(),
+                        "end": bpEnd.toString(),
+                        "pageSize": "10000"
+                    },
+                    decode: function (json) {
+
+                        var v;
+
+                        var variants = [];
+
+                        json.variants.forEach(function (json) {
+
+                            v = igv.createGAVariant(json);
+
+                            if (!v.isRefBlock()) {
+                                variants.push(v);
+                            }
+                        });
+
+                        return variants;
+                    }
+                })
+            })
+
+
+        function getChrAliasTable() {
+
+            return new Promise(function (fulfill, reject) {
+
+                if (self.chrAliasTable) {
+                    fulfill(self.chrAliasTable);
+                }
+
+                else {
+                    self.readMetadata().then(function (json) {
+
+                        self.metadata = json.metadata;
+                        self.chrAliasTable = {};
+
+                        if (json.referenceBounds && genome) {
+
+                            json.referenceBounds.forEach(function (rb) {
+                                var refName = rb.referenceName,
+                                    alias = genome.getChromosomeName(refName);
+                                self.chrAliasTable[alias] = refName;
+
+                            });
+                        }
+                        fulfill(self.chrAliasTable);
+
+                    })
+                }
+
+            });
+        }
+
+    }
+
+
+    igv.Ga4ghVariantReader.prototype.readMetadata = function () {
+
+        return igv.ga4ghGet({
+            url: this.url,
+            entity: "variantsets",
+            entityId: this.variantSetId
+        });
+    }
+
+
+    return igv;
+
+})(igv || {});
+
+/*
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2014-2015 Broad Institute
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
+var igv = (function (igv) {
+
+
+    //@deprecated -- use igv.google.setApiKey
+    igv.setApiKey = function (key) {
+        igv.google.setApiKey(key);
+    }
+
+    igv.google = {
+
+        fileInfoCache: {},
+
+        // Crude test, this is conservative, nothing bad happens for a false positive
+        isGoogleURL: function (url) {
+            return (url.includes("googleapis") && !url.includes("urlshortener")) || (url.startsWith("gs://"));
+        },
+
+        setApiKey: function (key) {
+            this.apiKey = key;
+        },
+
+        translateGoogleCloudURL: function (gsUrl) {
+
+            var i, bucket, object, qIdx, objectString, paramString;
+
+            i = gsUrl.indexOf('/', 5);
+            qIdx = gsUrl.indexOf('?');
+
+            if (i < 0) {
+                console.log("Invalid gs url: " + gsUrl);
+                return gsUrl;
+            }
+
+            bucket = gsUrl.substring(5, i);
+
+            objectString = (qIdx < 0) ? gsUrl.substring(i + 1) : gsUrl.substring(i + 1, qIdx);
+            object = encodeURIComponent(objectString);
+
+            if (qIdx > 0) {
+                paramString = gsUrl.substring(qIdx);
+            }
+
+            return "https://www.googleapis.com/storage/v1/b/" + bucket + "/o/" + object +
+                (paramString ? paramString + "&alt=media" : "?alt=media");
+
+        },
+
+        addApiKey: function (url) {
+
+            var apiKey = this.apiKey,
+                paramSeparator = url.includes("?") ? "&" : "?";
+
+            if (apiKey !== undefined && !url.includes("key=")) {
+                if (apiKey) {
+                    url = url + paramSeparator + "key=" + apiKey;
+                }
+            }
+            return url;
+        },
+
+        driveDownloadURL: function (link) {
+            var i1, i2, id;
+            // Return a google drive download url for the sharable link
+            //https://drive.google.com/open?id=0B-lleX9c2pZFbDJ4VVRxakJzVGM
+            //https://drive.google.com/file/d/1_FC4kCeO8E3V4dJ1yIW7A0sn1yURKIX-/view?usp=sharing
+
+            var id = getGoogleDriveFileID(link);
+
+            return id ? "https://www.googleapis.com/drive/v3/files/" + id + "?alt=media&supportsTeamDrives=true" : link;
+        },
+
+        getDriveFileInfo: function (googleDriveURL) {
+
+            var id = getGoogleDriveFileID(googleDriveURL),
+                endPoint = "https://www.googleapis.com/drive/v3/files/" + id + "?supportsTeamDrives=true";
+
+            return igv.xhr.loadJson(endPoint, igv.buildOptions({}));
+        },
+
+        loadGoogleProperties: function (propertiesURL) {
+
+            const self = this;
+
+            return igv.xhr.loadArrayBuffer(propertiesURL)
+
+                .then(function (arrayBuffer) {
+                    var inflate, plain, str;
+
+                    inflate = new Zlib.Gunzip(new Uint8Array(arrayBuffer));
+                    plain = inflate.decompress();
+                    str = String.fromCharCode.apply(null, plain);
+
+                    const properties = JSON.parse(str);
+                    self.setApiKey(properties["api_key"]);
+
+                    self.properties = properties;
+                    return properties;
+
+                })
+        }
+    }
+
+    function getGoogleDriveFileID(link) {
+
+        //https://drive.google.com/file/d/1_FC4kCeO8E3V4dJ1yIW7A0sn1yURKIX-/view?usp=sharing
+        var i1, i2;
+
+        if (link.includes("/open?id=")) {
+            i1 = link.indexOf("/open?id=") + 9;
+            i2 = link.indexOf("&");
+            if (i1 > 0 && i2 > i1) {
+                return link.substring(i1, i2)
+            }
+            else if (i1 > 0) {
+                return link.substring(i1);
+            }
+
+        }
+        else if (link.includes("/file/d/")) {
+            i1 = link.indexOf("/file/d/") + 8;
+            i2 = link.lastIndexOf("/");
+            return link.substring(i1, i2);
+        }
+    }
+
+    return igv;
+
+})(igv || {});
+
 
 /*
  * The MIT License (MIT)
@@ -41828,6 +42889,7 @@ var igv = (function (igv) {
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+"use strict";
 
 var igv = (function (igv) {
 
@@ -47362,9 +48424,15 @@ var igv = (function (igv) {
     igv.TrackView.prototype.setColor = function (color) {
         this.track.color = color;
         this.track.config.color = color;
+        window.defaultColor = color;
+        delete window.colorBy;
         this.repaintViews(true);
     };
 
+    igv.TrackView.prototype.setColorSource = function (srcName){
+        window.colorBy = srcName;
+        this.repaintViews(true);
+    };
     igv.TrackView.prototype.createColorPicker = function () {
 
         let self = this;
@@ -47383,7 +48451,7 @@ var igv = (function (igv) {
 
         this.colorPicker = new igv.genericContainer(config);
 
-        igv.createColorSwatchSelector(this.colorPicker.$container, rgb => this.setColor(rgb), this.track.color);
+        igv.createColorSwatchSelector(this.colorPicker.$container, rgb => this.setColor(rgb), rgb => this.setColorSource(rgb), this.track.color);
 
         self.colorPicker.$container.hide();
 
@@ -47708,7 +48776,7 @@ var igv = (function (igv) {
         this.scrollbar.moveScrollerBy(delta);
     };
 
-    igv.createColorSwatchSelector = function ($genericContainer, colorHandler, defaultColor) {
+    igv.createColorSwatchSelector = function ($genericContainer, colorHandler, colorSrcHandler, defaultColor) {
 
         let appleColors = Object.values(igv.appleCrayonPalette);
 
@@ -47721,6 +48789,8 @@ var igv = (function (igv) {
             appleColors.unshift(igv.Color.rgbToHex(defaultColor));
         }
 
+        let $swatchSubtitle = $('<h3 style="clear:both; width:100%">Color by unique color</h3>');
+        $genericContainer.append($swatchSubtitle);
         for (let color of appleColors) {
 
             let $swatch = $('<div>', {class: 'igv-color-swatch'});
@@ -47753,6 +48823,23 @@ var igv = (function (igv) {
             }
 
         }
+
+        let $catSubtitle = $('<h3 style="clear:both; width:100%">Color by attribute</h3>');
+        $genericContainer.append($catSubtitle);
+
+        const types = window.igv_config['color_fields'];
+        const $div  = $('<div style="clear:both"></div>');
+        $genericContainer.append($($div));
+        const $select = $('<select></select>');
+        $div.append($select);
+        for (let entry of types){
+            const $option = $('<option value="'+entry+'">'+entry+'</option>');
+            $select.append($option);
+        }
+        $select.change(() => {
+            const type = $select.val();
+            colorSrcHandler(type);
+        });
 
     };
 

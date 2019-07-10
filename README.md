@@ -1,3 +1,11 @@
+# EBI notes
+The following is a fork of the igv.js project, adapted to include additional functionality (colouring tracks by attributes).
+
+The output of this project (igv.min.js) is re-used in the ebi-metagenomics-client repository, and should be imported into that project via the static/js/ directory.
+
+As ebi-metagenomics-client utilises babel, this should be disabled when building this project (remove babel-polyfill from webpack.config.js entries to produce a client-compatible dist.). However the demo still requires the polyfills to function.
+
+The ebi-client compatible version can be built using npm run 
 # igv.js
 [![Build Status](https://travis-ci.org/igvteam/igv.js.svg?branch=master)](https://travis-ci.org/igvteam/igv.js)
 ![](https://img.shields.io/npm/dw/igv.svg)

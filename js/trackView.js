@@ -676,6 +676,8 @@ var igv = (function (igv) {
             appleColors.unshift(igv.Color.rgbToHex(defaultColor));
         }
 
+        let $swatchSubtitle = $('<h3 style="clear:both; width:100%">Color by unique color</h3>');
+        $genericContainer.append($swatchSubtitle);
         for (let color of appleColors) {
 
             let $swatch = $('<div>', {class: 'igv-color-swatch'});
@@ -708,6 +710,10 @@ var igv = (function (igv) {
             }
 
         }
+
+        let $catSubtitle = $('<h3 style="clear:both; width:100%">Color by attribute</h3>');
+        $genericContainer.append($catSubtitle);
+
         const types = window.igv_config['color_fields'];
         const $div  = $('<div style="clear:both"></div>');
         $genericContainer.append($($div));
@@ -720,7 +726,6 @@ var igv = (function (igv) {
         $select.change(() => {
             const type = $select.val();
             colorSrcHandler(type);
-            console.error(type);
         });
 
     };
