@@ -23,16 +23,22 @@
  * THE SOFTWARE.
  */
 
-function getProductColor(product) {
+function getProductColor(attributeName, product) {
+    console.trace();
+    if (!window.hasOwnProperty('colors')){
+        window.colors = {};
+    }
     let color;
-    if (product in window.colors) {
-        color = window.colors[product];
+    if (!(attributeName in window.colors)){
+        window.colors[attributeName] = {};
+    }
+    if (product in window.colors[attributeName]) {
+        color = window.colors[attributeName][product];
     } else {
         color = getRandomColor();
-        window.colors[product] = color;
+        window.colors[attributeName][product] = color;
     }
     return color;
-
 }
 
 function getRandomColor() {
@@ -43,8 +49,6 @@ function getRandomColor() {
     }
     return color;
 }
-
-window.colors = {};
 
 var igv = (function (igv) {
 
@@ -588,7 +592,7 @@ var igv = (function (igv) {
                     if (window.hasOwnProperty('colorBy')){
                         const match = reg.exec(exon['attributeString']);
                         try{
-                            color = getProductColor(match[1]);
+                            color = getProductColor(srcField, match[1]);
                         } catch(e){
                             console.debug(e);
                             console.debug(match);

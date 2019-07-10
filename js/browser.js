@@ -997,6 +997,7 @@ var igv = (function (igv) {
                 trackView.updateViews();
             })
         }
+        window.regen_legend();
     };
 
     igv.Browser.prototype.loadInProgress = function () {

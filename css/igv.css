@@ -643,7 +643,7 @@
 
 .igv-chromosome-select-widget-container {
   height: 100%;
-  width: 125px;
+  width: 200px;
   margin-right: 4px;
   display: flex;
   flex-flow: column;
@@ -653,7 +653,7 @@
   .igv-chromosome-select-widget-container select {
     display: block;
     cursor: pointer;
-    width: 100px;
+    width: 200px;
     height: 75%;
     outline: none;
     font-size: 12px;
@@ -669,7 +669,7 @@
   margin-left: 8px;
   height: calc(32px - 10px); }
   .igv-locus-size-group .igv-search-container {
-    width: 200px;
+    width: 300px;
     height: calc(32px - 10px);
     line-height: calc(32px - 10px);
     display: flex;

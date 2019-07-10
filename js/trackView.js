@@ -425,6 +425,7 @@ var igv = (function (igv) {
         if (this.track.paintAxis) {
             this.track.paintAxis(this.controlCtx, $(this.controlCanvas).width(), $(this.controlCanvas).height());
         }
+        window.regen_legend();
     }
 
 
@@ -495,6 +496,7 @@ var igv = (function (igv) {
         }
 
         adjustTrackHeight.call(this);
+        window.regen_legend();
 
     }
 
