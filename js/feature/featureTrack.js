@@ -533,14 +533,16 @@ var igv = (function (igv) {
                         igv.graphics.strokeLine(ctx, x - direction * 2, cy - 2, x, cy);
                         igv.graphics.strokeLine(ctx, x - direction * 2, cy + 2, x, cy);
                     }
-                    ctx.fillStyle = color;
                     if (igv.browser.config.ebi.colorAttributes) {
                         const ebiColour = igv.ebi.colorForAttribute(feature);
                         if (ebiColour) {
                             ctx.fillStyle = ebiColour;
+                            ctx.strokeStyle = ebiColour;
                         }
+                    } else {
+                        ctx.fillStyle = color;
+                        ctx.strokeStyle = ebiColour;
                     }
-                    ctx.strokeStyle = color;
                 }
             }
             else {
