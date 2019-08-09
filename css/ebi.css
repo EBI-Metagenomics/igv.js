@@ -1,0 +1,32 @@
+.legend-container {
+    width: 100%;
+}
+
+.legend-title {
+    clear: both;
+    text-align: center;
+    font-size: 20px;
+    font-weight: bold;
+    width: 100%;
+    cursor: auto;
+}
+
+.sub-legend caption {
+    text-align: left;
+    font-size: 18px;
+    font-weight: bold;
+    width: 100%;
+    cursor: auto;
+}
+
+.legend-col {
+    min-width: 50px;
+    float: left;
+    margin-bottom: 15px;
+}
+
+.legend-color {
+    height: 1em;
+    width: 1em;
+    cursor: auto;
+}

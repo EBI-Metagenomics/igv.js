@@ -1,12 +1,32 @@
 # EBI notes
 The following is a fork of the igv.js project, adapted to include additional functionality (colouring tracks by attributes).
 
-The output of this project (igv.min.js) is re-used in the ebi-metagenomics-client repository, and should be imported into that project via the static/js/ directory.
+In order to simplify the upgrade the modifications were made (as much as possible) on separate files. The modifications and patch are on the `js/ebi/` folder.
 
-As ebi-metagenomics-client utilises babel, this should be disabled when building this project (remove babel-polyfill from webpack.config.js entries to produce a client-compatible dist.). However the demo still requires the polyfills to function.
+Some minor modifications were necessary on the repository on the files `igv-create.js` and `feature/featureTrack.js`. The plan is to incorporate the track colour by attribute and submit a PR to the igv-team (there is no time-frame for this).
 
-The ebi-client compatible version can be built using npm run 
-# igv.js
+This custom build only has the following folders (as some features are not used in MGnify):
+
+* 'js/*.js'
+* 'js/ebi/*.js'
+* 'js/feature/*.js'
+* 'js/session/*.js'
+* 'js/ui/*.js'
+* 'js/google/*.js'
+
+
+Also JQuery and underscore were removed from the build.
+
+## EBI releases
+
+This project is installed on the MGnify platform using npm.
+
+The current version is based on the release `v2.2.9`. The EBI versioning for this repo is: `v{igv team tag}+ebi{ebi custom build}`.
+
+
+As ebi-metagenomics-client utilises babel, this should be disabled when building this project (remove babel-polyfill from webpack.config.js entries to produce a client-compatible dist.). However the demo still requires the polyfills to function, this required manual edition of the webpack file at the moment.
+
+# igv.js - source docs.
 [![Build Status](https://travis-ci.org/igvteam/igv.js.svg?branch=master)](https://travis-ci.org/igvteam/igv.js)
 ![](https://img.shields.io/npm/dw/igv.svg)
 ![](https://img.shields.io/github/last-commit/igvteam/igv.js.svg)

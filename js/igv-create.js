@@ -97,6 +97,10 @@ var igv = (function (igv) {
             igv.oauth.setToken(config.oauthToken);
         }
 
+        igv.ebi = new igv.EBIextension(browser, config);
+        // Patch some methods in TrackView
+        igv.EBIconfigOverrides();
+
         return loadSession(config)
 
             .then(function (ignore) {
@@ -155,7 +159,6 @@ var igv = (function (igv) {
                 return browser.loadSessionObject(config)
             }
         }
-
     };
 
     igv.removeBrowser = function (browser) {

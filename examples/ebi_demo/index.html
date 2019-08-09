@@ -1,0 +1,50 @@
+<script src="../../dist/igv.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+<div id="igv-div" style="float:left; width:80%;">
+</div>
+<div id="igv-legend" style="float:right; width:20%;">
+</div>
+<style>
+    #igv-div {
+        max-height: 20em;
+    }
+</style>
+<script type="text/javascript">
+    var options =
+    {
+        showTrackLabelButton: false,
+        showTrackLabels: false,
+        reference: {
+            id: 'myid',
+            fastaURL: './MGYG-HGUT-01690.fna',
+            indexURL: './MGYG-HGUT-01690.fna.fai',
+            index: true
+        },
+        tracks: [
+            {
+                name: 'GUT_GENOME_00001',
+                url: './MGYG-HGUT-01690.gff',
+                format: 'gff',
+                displayMode: 'EXPANDED',
+                removable: false
+            }
+        ],
+        ebi: {
+            colorAttributes: [
+                '',
+                'COG',
+                'product',
+                'Pfam',
+                'KEGG',
+                'InterPro',
+                'eggNOG'
+            ],
+            showLegendButton: true,
+        },
+    };
+    igv.createBrowser(document.getElementById('igv-div'), options)
+        .then(function (browser) {
+            console.log("Created IGV browser");
+        })
+</script>

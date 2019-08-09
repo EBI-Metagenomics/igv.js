@@ -2,7 +2,8 @@ const path = require('path')
 
 module.exports = {
     mode: 'production',
-    entry:  ['babel-polyfill', './tmp/igv.js'],
+    entry:  ['./tmp/igv.js'],
+    // entry:  ['babel-polyfill', './tmp/igv.js'],
     target: 'web',
     output: {
         path: path.resolve(__dirname, 'dist'),

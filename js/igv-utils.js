@@ -623,7 +623,6 @@ var igv = (function (igv) {
 
     }
 
-
     return igv;
 
 })(igv || {});

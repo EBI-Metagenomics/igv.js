@@ -23,33 +23,6 @@
  * THE SOFTWARE.
  */
 
-function getProductColor(attributeName, product) {
-    console.trace();
-    if (!window.hasOwnProperty('colors')){
-        window.colors = {};
-    }
-    let color;
-    if (!(attributeName in window.colors)){
-        window.colors[attributeName] = {};
-    }
-    if (product in window.colors[attributeName]) {
-        color = window.colors[attributeName][product];
-    } else {
-        color = getRandomColor();
-        window.colors[attributeName][product] = color;
-    }
-    return color;
-}
-
-function getRandomColor() {
-    var letters = '0123456789ABCDEF';
-    var color = '#';
-    for (var i = 0; i < 6; i++) {
-        color += letters[Math.floor(Math.random() * 16)];
-    }
-    return color;
-}
-
 var igv = (function (igv) {
 
     "use strict";
@@ -578,29 +551,16 @@ var igv = (function (igv) {
                     igv.graphics.strokeLine(ctx, x - direction * 2, cy + 2, x, cy);
                 }
 
-
-                let srcField, reg;
-                if (window.hasOwnProperty('colorBy')){
-                    srcField = window.colorBy;
-                    reg = new RegExp(srcField+'=([^;]+)');
-                }
-
-
                 for (let e = 0; e < exonCount; e++) {
                     // draw the exons
                     const exon = feature.exons[e];
-                    if (window.hasOwnProperty('colorBy')){
-                        const match = reg.exec(exon['attributeString']);
-                        try{
-                            color = getProductColor(srcField, match[1]);
-                        } catch(e){
-                            console.debug(e);
-                            console.debug(match);
-                            console.debug(exon['attributeString']);
-                            color = window.defaultColor;
+                    if (igv.browser.config.ebi.colorAttributes) {
+                        const ebiColour = igv.ebi.colorForAttribute(exon);
+                        if (ebiColour) {
+                            ctx.fillStyle = ebiColour;
                         }
-                        ctx.fillStyle = color;
                     }
+
                     let ePx = Math.round((exon.start - bpStart) / xScale);
                     let ePx1 = Math.round((exon.end - bpStart) / xScale);
                     let ePw = Math.max(1, ePx1 - ePx);

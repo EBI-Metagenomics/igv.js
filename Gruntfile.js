@@ -43,15 +43,22 @@ module.exports = function (grunt) {
                 src: [
                     'wrapper/header.js',
                     'tmp/embedCss.js',
-                    'vendor/jquery-3.3.1.slim.js',
-                    'vendor/underscore.js',
+                    // TODO: remove, MGnify has them
+                    //'vendor/jquery-3.3.1.slim.js',
+                    //'vendor/underscore.js',
                     'vendor/zlib_and_gzip.js',
                     'vendor/inflate.js',
                     'vendor/jquery.mousewheel.js',
                     'vendor/rbtree.js',
                     'vendor/tdigest.js',
-                    'vendor/cram-bundle.js',
-                    'js/**/*.js',
+                    // 'vendor/cram-bundle.js',
+                    // A subset of the bundle
+                    'js/*.js',
+                    'js/ebi/*.js',
+                    'js/feature/*.js',
+                    'js/session/*.js',
+                    'js/ui/*.js',
+                    'js/google/*.js',
                     'wrapper/footer.js'
                 ],
                 dest: 'tmp/igv.js'
@@ -60,15 +67,22 @@ module.exports = function (grunt) {
                 src: [
                     'wrapper/header-esm.js',
                     'tmp/embedCss.js',
-                    'vendor/jquery-3.3.1.slim.js',
-                    'vendor/underscore.js',
+                    // TODO: remove, MGnify has them
+                    //'vendor/jquery-3.3.1.slim.js',
+                    //'vendor/underscore.js',
                     'vendor/zlib_and_gzip.js',
                     'vendor/inflate.js',
                     'vendor/jquery.mousewheel.js',
                     'vendor/rbtree.js',
                     'vendor/tdigest.js',
-                    'vendor/cram-bundle.js',
-                    'js/**/*.js',
+                    // 'vendor/cram-bundle.js',
+                    // A subset of the bundle
+                    'js/*.js',
+                    'js/ebi/*.js',
+                    'js/feature/*.js',
+                    'js/session/*.js',
+                    'js/ui/*.js',
+                    'js/google/*.js',
                     'wrapper/footer-esm.js'
                 ],
                 dest: 'dist/igv.esm.js'
@@ -99,6 +113,7 @@ module.exports = function (grunt) {
             css: {
                 src: [
                     'css/igv.css',
+                    'css/ebi.css',
                     'vendor/fa-svg-with-js.css'
                 ],
                 dest: 'tmp/igv-all.css'
