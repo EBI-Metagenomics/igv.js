@@ -131,9 +131,8 @@ var igv = (function (igv) {
         /* EBI extension for the colours. */
         const colorAttributes = this.browser.config.ebi.colorAttributes;
         if (colorAttributes && colorAttributes.length > 0) {
-            const $div = $('<div class="igv-colour-selector-containter">' + 
-                '<span class="icon icon-generic" data-icon="?" data-tooltip tabindex="1" title="Color by attribute."></span>' + 
-                '</div>');
+            const $tooltip = $('<span class="icon icon-generic" data-icon="?" ' + 
+                ' data-tooltip tabindex="1" title="Color by attribute."></span>');
             const $select = $('<select class="igv-colour-selector"></select>');
             for (let attribute of colorAttributes) {
                 $select.append($('<option value="' + attribute + '">' + attribute + '</option>'));
@@ -141,8 +140,8 @@ var igv = (function (igv) {
             $select.change(() => {
                 colorAttrHandler($select.val());
             });
-            $div.append($select);
-            igv.browser.$toggle_button_container.append($div);
+            igv.browser.$toggle_button_container.append($tooltip);
+            igv.browser.$toggle_button_container.append($select);
         }
     };
 

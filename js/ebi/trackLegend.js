@@ -46,6 +46,8 @@ var igv = (function (igv) {
             width: 384,
             height: 'auto',
             closeHandler: () => {
+                self.browser.trackLegendVisible = false;
+                self.$button.removeClass('igv-nav-bar-button-clicked');
                 self.legend.$container.hide();
             }
         });
@@ -60,8 +62,6 @@ var igv = (function (igv) {
         const cogMap = igv.EBIextension.prototype.COG_MAP;
         const cogs = Object.keys(cogMap).sort();
 
-        let $cogCol = $('<table class="legend-col"></table>');
-
         for (var i = 0, len = cogs.length; i < len; i++) {
             const key = cogs[i];
             const $legendEntry = $('<tr class="legend-entry"></tr>');
@@ -69,7 +69,7 @@ var igv = (function (igv) {
             const $label = $('<td class="legend-label">' + key + '</td>');
             $legendEntry.append($color);
             $legendEntry.append($label);
-            $cogCol.append($legendEntry);
+            $cogLegend.append($legendEntry);
         };
 
         const $otherLegend = $('<table class="sub-legend"><caption>For other attributes</caption></table>');
@@ -83,7 +83,6 @@ var igv = (function (igv) {
         $abscenceTr.append($('<td class="legend-label">Absence</td>'));
         $otherLegend.append($abscenceTr);
 
-        $cogLegend.append($cogCol);
         $legendContainter.append($cogLegend);
         $legendContainter.append($otherLegend);
         
