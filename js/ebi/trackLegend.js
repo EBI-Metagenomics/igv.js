@@ -60,8 +60,7 @@ var igv = (function (igv) {
         const cogMap = igv.EBIextension.prototype.COG_MAP;
         const cogs = Object.keys(cogMap).sort();
 
-        let $cogCol;
-        const legendCols = [];
+        let $cogCol = $('<table class="legend-col"></table>');
 
         for (var i = 0, len = cogs.length; i < len; i++) {
             const key = cogs[i];
@@ -70,23 +69,21 @@ var igv = (function (igv) {
             const $label = $('<td class="legend-label">' + key + '</td>');
             $legendEntry.append($color);
             $legendEntry.append($label);
-            if (i % 10 === 0) {
-                $cogCol = $('<table class="legend-col"></table>');
-                legendCols.push($cogCol);
-            }
             $cogCol.append($legendEntry);
         };
 
         const $otherLegend = $('<table class="sub-legend"><caption>For other attributes</caption></table>');
-        const $otherTr = $('<tr></tr>');
-        $otherTr.append($('<td class="legend-color" style="background:'+igv.EBIDefaultColor+ '"></td>'));
-        $otherTr.append($('<td class="legend-label">Presence</td>'));
+        const $prescenceTr = $('<tr class="legend-entry"></tr>');
+        $prescenceTr.append($('<td class="legend-color" style="background:'+igv.EBIDefaultColor+ '"></td>'));
+        $prescenceTr.append($('<td class="legend-label">Presence</td>'));
+        $otherLegend.append($prescenceTr);
 
-        $otherTr.append($('<td class="legend-color" style="background:'+igv.EBIDefaultColorAbs+'"></td>'));
-        $otherTr.append($('<td class="legend-label">Absence</td>'));
-        $otherLegend.append($otherTr);
+        const $abscenceTr = $('<tr class="legend-entry"></tr>');
+        $abscenceTr.append($('<td class="legend-color" style="background:'+igv.EBIDefaultColorAbs+'"></td>'));
+        $abscenceTr.append($('<td class="legend-label">Absence</td>'));
+        $otherLegend.append($abscenceTr);
 
-        $cogLegend.append(legendCols);
+        $cogLegend.append($cogCol);
         $legendContainter.append($cogLegend);
         $legendContainter.append($otherLegend);
         
