@@ -50,6 +50,9 @@ var igv = (function (igv) {
             }
         });
 
+        browser.trackLegendVisible = false;
+        self.legend.$container.hide();
+
         const $legendContainter = $('<table class="legend-container"></table>');
 
         /* COG */
