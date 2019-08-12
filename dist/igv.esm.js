@@ -22851,7 +22851,7 @@ var igv = (function (igv) {
         if (!attrName) {
             return;
         }
-        const match = this.attrRegexes[attrName].feature(feature['attributeString']);
+        const match = this.attrRegexes[attrName].exec(feature['attributeString']);
         if (match) {
             if (attrName === 'COG') {
                 return this.getCOGcolour(match[1]) || defaultColour;
