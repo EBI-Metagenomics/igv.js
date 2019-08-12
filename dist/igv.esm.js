@@ -22841,19 +22841,20 @@ var igv = (function (igv) {
     }
 
     /**
-     * Get the colour for a feature (exon).
+     * Get the colour for a feature (feature).
      * This will store the colour in the cache also.
-     * @param {Object} exon The exon to extract the data from
+     * @param {Object} feature The feature to extract the data from
+     * @param {string} defaultColour IGV default colour
      */
-    igv.EBIextension.prototype.colorForAttribute = function (exon) {
+    igv.EBIextension.prototype.colorForAttribute = function (feature, defaultColour) {
         let attrName = this.currentSelectedAttribute;
         if (!attrName) {
             return;
         }
-        const match = this.attrRegexes[attrName].exec(exon['attributeString']);
+        const match = this.attrRegexes[attrName].feature(feature['attributeString']);
         if (match) {
             if (attrName === 'COG') {
-                return this.getCOGcolour(match[1]);
+                return this.getCOGcolour(match[1]) || defaultColour;
             } else {
                 // presence
                 return DEFAULT_COLOUR;
@@ -26331,15 +26332,10 @@ var igv = (function (igv) {
                         igv.graphics.strokeLine(ctx, x - direction * 2, cy + 2, x, cy);
                     }
                     if (igv.browser.config.ebi.colorAttributes) {
-                        const ebiColour = igv.ebi.colorForAttribute(feature);
-                        if (ebiColour) {
-                            ctx.fillStyle = ebiColour;
-                            ctx.strokeStyle = ebiColour;
-                        }
-                    } else {
-                        ctx.fillStyle = color;
-                        ctx.strokeStyle = color;
+                        this.color = igv.ebi.colorForAttribute(feature, this.color);
                     }
+                    ctx.fillStyle = color;
+                    ctx.strokeStyle = color;
                 }
             }
             else {
@@ -26360,10 +26356,9 @@ var igv = (function (igv) {
                     // draw the exons
                     const exon = feature.exons[e];
                     if (igv.browser.config.ebi.colorAttributes) {
-                        const ebiColour = igv.ebi.colorForAttribute(exon);
-                        if (ebiColour) {
-                            ctx.fillStyle = ebiColour;
-                        }
+                        this.color = igv.ebi.colorForAttribute(exon);
+                        ctx.fillStyle = ebiColour;
+                        ctx.strokeStyle = ebiColour;
                     }
 
                     let ePx = Math.round((exon.start - bpStart) / xScale);
@@ -26463,8 +26458,8 @@ var igv = (function (igv) {
                 ((textFitsInBox || geneColor) && this.displayMode !== "SQUISHED" && feature.name !== undefined)) {
                 geneFontStyle = {
                     textAlign: 'center',
-                    fillStyle: geneColor || ctx.fillStyle || feature.color || this.color,
-                    strokeStyle: geneColor || ctx.strokeStyle || feature.color || this.color
+                    fillStyle: geneColor || feature.color || this.color,
+                    strokeStyle: geneColor || feature.color || this.color
                 };
 
                 if (this.displayMode === "COLLAPSED" && this.labelDisplayMode === "SLANT") {

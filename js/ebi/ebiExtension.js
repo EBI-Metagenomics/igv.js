@@ -99,19 +99,20 @@ var igv = (function (igv) {
     }
 
     /**
-     * Get the colour for a feature (exon).
+     * Get the colour for a feature (feature).
      * This will store the colour in the cache also.
-     * @param {Object} exon The exon to extract the data from
+     * @param {Object} feature The feature to extract the data from
+     * @param {string} defaultColour IGV default colour
      */
-    igv.EBIextension.prototype.colorForAttribute = function (exon) {
+    igv.EBIextension.prototype.colorForAttribute = function (feature, defaultColour) {
         let attrName = this.currentSelectedAttribute;
         if (!attrName) {
             return;
         }
-        const match = this.attrRegexes[attrName].exec(exon['attributeString']);
+        const match = this.attrRegexes[attrName].feature(feature['attributeString']);
         if (match) {
             if (attrName === 'COG') {
-                return this.getCOGcolour(match[1]);
+                return this.getCOGcolour(match[1]) || defaultColour;
             } else {
                 // presence
                 return DEFAULT_COLOUR;

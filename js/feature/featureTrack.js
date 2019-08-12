@@ -534,15 +534,10 @@ var igv = (function (igv) {
                         igv.graphics.strokeLine(ctx, x - direction * 2, cy + 2, x, cy);
                     }
                     if (igv.browser.config.ebi.colorAttributes) {
-                        const ebiColour = igv.ebi.colorForAttribute(feature);
-                        if (ebiColour) {
-                            ctx.fillStyle = ebiColour;
-                            ctx.strokeStyle = ebiColour;
-                        }
-                    } else {
-                        ctx.fillStyle = color;
-                        ctx.strokeStyle = color;
+                        this.color = igv.ebi.colorForAttribute(feature, this.color);
                     }
+                    ctx.fillStyle = color;
+                    ctx.strokeStyle = color;
                 }
             }
             else {
@@ -563,10 +558,9 @@ var igv = (function (igv) {
                     // draw the exons
                     const exon = feature.exons[e];
                     if (igv.browser.config.ebi.colorAttributes) {
-                        const ebiColour = igv.ebi.colorForAttribute(exon);
-                        if (ebiColour) {
-                            ctx.fillStyle = ebiColour;
-                        }
+                        this.color = igv.ebi.colorForAttribute(exon);
+                        ctx.fillStyle = ebiColour;
+                        ctx.strokeStyle = ebiColour;
                     }
 
                     let ePx = Math.round((exon.start - bpStart) / xScale);
@@ -666,8 +660,8 @@ var igv = (function (igv) {
                 ((textFitsInBox || geneColor) && this.displayMode !== "SQUISHED" && feature.name !== undefined)) {
                 geneFontStyle = {
                     textAlign: 'center',
-                    fillStyle: geneColor || ctx.fillStyle || feature.color || this.color,
-                    strokeStyle: geneColor || ctx.strokeStyle || feature.color || this.color
+                    fillStyle: geneColor || feature.color || this.color,
+                    strokeStyle: geneColor || feature.color || this.color
                 };
 
                 if (this.displayMode === "COLLAPSED" && this.labelDisplayMode === "SLANT") {
