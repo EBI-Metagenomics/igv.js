@@ -26338,7 +26338,7 @@ var igv = (function (igv) {
                         }
                     } else {
                         ctx.fillStyle = color;
-                        ctx.strokeStyle = ebiColour;
+                        ctx.strokeStyle = color;
                     }
                 }
             }
@@ -26462,10 +26462,9 @@ var igv = (function (igv) {
             if ((feature.name !== undefined && feature.name.toUpperCase() === selectedFeatureName) ||
                 ((textFitsInBox || geneColor) && this.displayMode !== "SQUISHED" && feature.name !== undefined)) {
                 geneFontStyle = {
-                    // font: '10px PT Sans',
                     textAlign: 'center',
-                    fillStyle: geneColor || feature.color || this.color,
-                    strokeStyle: geneColor || feature.color || this.color
+                    fillStyle: geneColor || ctx.fillStyle || feature.color || this.color,
+                    strokeStyle: geneColor || ctx.strokeStyle || feature.color || this.color
                 };
 
                 if (this.displayMode === "COLLAPSED" && this.labelDisplayMode === "SLANT") {
