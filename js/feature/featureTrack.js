@@ -536,8 +536,8 @@ var igv = (function (igv) {
                     if (igv.browser.config.ebi.colorAttributes) {
                         this.color = igv.ebi.colorForAttribute(feature, this.color);
                     }
-                    ctx.fillStyle = color;
-                    ctx.strokeStyle = color;
+                    ctx.fillStyle = this.color;
+                    ctx.strokeStyle = this.color;
                 }
             }
             else {
@@ -559,8 +559,8 @@ var igv = (function (igv) {
                     const exon = feature.exons[e];
                     if (igv.browser.config.ebi.colorAttributes) {
                         this.color = igv.ebi.colorForAttribute(exon);
-                        ctx.fillStyle = ebiColour;
-                        ctx.strokeStyle = ebiColour;
+                        ctx.fillStyle = this.color;
+                        ctx.strokeStyle = this.color;
                     }
 
                     let ePx = Math.round((exon.start - bpStart) / xScale);
