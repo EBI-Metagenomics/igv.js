@@ -44,8 +44,6 @@ var igv = (function (igv) {
     function setColorAttrEBI(attr) {
         igv.ebi.setSelectedAttribute(attr);
         this.repaintViews(true);
-        // Refresh the Legend
-
     };
 
     /**

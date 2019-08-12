@@ -21949,6 +21949,13 @@ var igv = (function (igv) {
 
         const features = tile.features;
 
+        if (features && igv.browser.config.ebi.colorAttributes) {
+            for (let i = 0, l = tile.features.length; i < l; i++) {
+                const ebiColor = igv.ebi.colorForAttribute(tile.features[i]);
+                tile.features[i].color = ebiColor; 
+            }
+        }
+
         const genomicState = this.genomicState;
         const referenceFrame = genomicState.referenceFrame;
 
@@ -22846,7 +22853,7 @@ var igv = (function (igv) {
      * @param {Object} feature The feature to extract the data from
      * @param {string} defaultColour IGV default colour
      */
-    igv.EBIextension.prototype.colorForAttribute = function (feature, defaultColour) {
+    igv.EBIextension.prototype.colorForAttribute = function (feature) {
         let attrName = this.currentSelectedAttribute;
         if (!attrName) {
             return;
@@ -22854,7 +22861,7 @@ var igv = (function (igv) {
         const match = this.attrRegexes[attrName].exec(feature['attributeString']);
         if (match) {
             if (attrName === 'COG') {
-                return this.getCOGcolour(match[1]) || defaultColour;
+                return this.getCOGcolour(match[1]);
             } else {
                 // presence
                 return DEFAULT_COLOUR;
@@ -22953,8 +22960,6 @@ var igv = (function (igv) {
     function setColorAttrEBI(attr) {
         igv.ebi.setSelectedAttribute(attr);
         this.repaintViews(true);
-        // Refresh the Legend
-
     };
 
     /**
@@ -26331,11 +26336,8 @@ var igv = (function (igv) {
                         igv.graphics.strokeLine(ctx, x - direction * 2, cy - 2, x, cy);
                         igv.graphics.strokeLine(ctx, x - direction * 2, cy + 2, x, cy);
                     }
-                    if (igv.browser.config.ebi.colorAttributes) {
-                        this.color = igv.ebi.colorForAttribute(feature, this.color);
-                    }
-                    ctx.fillStyle = this.color;
-                    ctx.strokeStyle = this.color;
+                    ctx.fillStyle = color;
+                    ctx.strokeStyle = color;
                 }
             }
             else {
@@ -26354,13 +26356,6 @@ var igv = (function (igv) {
 
                 for (let e = 0; e < exonCount; e++) {
                     // draw the exons
-                    const exon = feature.exons[e];
-                    if (igv.browser.config.ebi.colorAttributes) {
-                        this.color = igv.ebi.colorForAttribute(exon);
-                        ctx.fillStyle = this.color;
-                        ctx.strokeStyle = this.color;
-                    }
-
                     let ePx = Math.round((exon.start - bpStart) / xScale);
                     let ePx1 = Math.round((exon.end - bpStart) / xScale);
                     let ePw = Math.max(1, ePx1 - ePx);
@@ -26404,7 +26399,6 @@ var igv = (function (igv) {
                             }
                             ctx.fillStyle = color;
                             ctx.strokeStyle = color;
-
                         }
                     }
                 }

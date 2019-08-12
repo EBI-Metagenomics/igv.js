@@ -533,11 +533,8 @@ var igv = (function (igv) {
                         igv.graphics.strokeLine(ctx, x - direction * 2, cy - 2, x, cy);
                         igv.graphics.strokeLine(ctx, x - direction * 2, cy + 2, x, cy);
                     }
-                    if (igv.browser.config.ebi.colorAttributes) {
-                        this.color = igv.ebi.colorForAttribute(feature, this.color);
-                    }
-                    ctx.fillStyle = this.color;
-                    ctx.strokeStyle = this.color;
+                    ctx.fillStyle = color;
+                    ctx.strokeStyle = color;
                 }
             }
             else {
@@ -556,13 +553,6 @@ var igv = (function (igv) {
 
                 for (let e = 0; e < exonCount; e++) {
                     // draw the exons
-                    const exon = feature.exons[e];
-                    if (igv.browser.config.ebi.colorAttributes) {
-                        this.color = igv.ebi.colorForAttribute(exon);
-                        ctx.fillStyle = this.color;
-                        ctx.strokeStyle = this.color;
-                    }
-
                     let ePx = Math.round((exon.start - bpStart) / xScale);
                     let ePx1 = Math.round((exon.end - bpStart) / xScale);
                     let ePw = Math.max(1, ePx1 - ePx);
@@ -606,7 +596,6 @@ var igv = (function (igv) {
                             }
                             ctx.fillStyle = color;
                             ctx.strokeStyle = color;
-
                         }
                     }
                 }

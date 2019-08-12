@@ -319,6 +319,13 @@ var igv = (function (igv) {
 
         const features = tile.features;
 
+        if (features && igv.browser.config.ebi.colorAttributes) {
+            for (let i = 0, l = tile.features.length; i < l; i++) {
+                const ebiColor = igv.ebi.colorForAttribute(tile.features[i]);
+                tile.features[i].color = ebiColor; 
+            }
+        }
+
         const genomicState = this.genomicState;
         const referenceFrame = genomicState.referenceFrame;
 

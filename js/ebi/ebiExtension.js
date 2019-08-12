@@ -104,7 +104,7 @@ var igv = (function (igv) {
      * @param {Object} feature The feature to extract the data from
      * @param {string} defaultColour IGV default colour
      */
-    igv.EBIextension.prototype.colorForAttribute = function (feature, defaultColour) {
+    igv.EBIextension.prototype.colorForAttribute = function (feature) {
         let attrName = this.currentSelectedAttribute;
         if (!attrName) {
             return;
@@ -112,7 +112,7 @@ var igv = (function (igv) {
         const match = this.attrRegexes[attrName].exec(feature['attributeString']);
         if (match) {
             if (attrName === 'COG') {
-                return this.getCOGcolour(match[1]) || defaultColour;
+                return this.getCOGcolour(match[1]);
             } else {
                 // presence
                 return DEFAULT_COLOUR;

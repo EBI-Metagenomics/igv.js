@@ -3,7 +3,7 @@ The following is a fork of the igv.js project, adapted to include additional fun
 
 In order to simplify the upgrade the modifications were made (as much as possible) on separate files. The modifications and patch are on the `js/ebi/` folder.
 
-Some minor modifications were necessary on the repository on the files `igv-create.js` and `feature/featureTrack.js`. The plan is to incorporate the track colour by attribute and submit a PR to the igv-team (there is no time-frame for this).
+Some minor modifications were necessary on the repository on the files `igv-create.js` and `viewport.js`. The plan is to incorporate the track colour by attribute and submit a PR to the igv-team (there is no time-frame for this).
 
 This custom build only has the following folders (as some features are not used in MGnify):
 
