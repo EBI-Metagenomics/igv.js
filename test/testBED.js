@@ -1,5 +1,7 @@
-function runBedTests() {
+import FeatureFileReader from "../js/feature/featureFileReader.js";
+import FeatureSource from "../js/feature/featureSource.js";
 
+function runBedTests() {
 
     // mock objects
     const genome = {
@@ -63,6 +65,27 @@ function runBedTests() {
     //         })
     // })
 
+    QUnit.test("Chr aliasing", async function (assert) {
+
+        ///Users/jrobinso/Dropbox/projects/igv.js/test/data/bed/gwasCatalog.test.txt
+        const done = assert.async();
+
+        const config = {
+            format: "refgene",
+            url: "https://s3.amazonaws.com/igv.org.genomes/hg19/refGene.sorted.txt.gz",
+            indexlURL: "https://s3.amazonaws.com/igv.org.genomes/hg19/refGene.sorted.txt.gz.tbi"
+        }
+
+        const reader = new FeatureSource(config, genome);
+        const features = await reader.getFeatures("8", 128746680, 128756129)
+        assert.ok(features);
+        assert.equal(features.length, 2);
+
+        // now query with
+        done();
+
+    })
+
     QUnit.test("GWAS Catalog format", function (assert) {
 
         ///Users/jrobinso/Dropbox/projects/igv.js/test/data/bed/gwasCatalog.test.txt
@@ -74,7 +97,7 @@ function runBedTests() {
             url: "data/bed/gwasCatalog.test.txt"
         }
 
-        const reader = new igv.FeatureFileReader(config);
+        const reader = new FeatureFileReader(config);
 
         reader.readFeatures("chr1", 0, Number.MAX_VALUE)
             .then(features => {
@@ -101,7 +124,7 @@ function runBedTests() {
             url: "data/bed/wgRna.test.txt"
         }
 
-        const reader = new igv.FeatureFileReader(config);
+        const reader = new FeatureFileReader(config);
 
         reader.readFeatures("chr1", 0, Number.MAX_VALUE)
             .then(features => {
@@ -128,7 +151,7 @@ function runBedTests() {
             url: "data/bed/cpgIslandExt.test.txt"
         }
 
-        const reader = new igv.FeatureFileReader(config);
+        const reader = new FeatureFileReader(config);
 
         reader.readFeatures("chr1", 0, Number.MAX_VALUE)
             .then(features => {
@@ -154,7 +177,7 @@ function runBedTests() {
             url: "data/bed/ensGene.test.txt"
         }
 
-        const reader = new igv.FeatureFileReader(config);
+        const reader = new FeatureFileReader(config);
 
         reader.readFeatures("chr1", 0, Number.MAX_VALUE)
             .then(features => {
@@ -200,7 +223,7 @@ function runBedTests() {
             url: "data/bed/Low_complexity.rmask"
         }
 
-        const reader = new igv.FeatureFileReader(config);
+        const reader = new FeatureFileReader(config);
 
         reader.readFeatures("chr1", 0, Number.MAX_VALUE)
 
@@ -224,14 +247,14 @@ function runBedTests() {
     })
 
 
-    QUnit.test("BED query", function(assert) {
+    QUnit.test("BED query", function (assert) {
 
         var done = assert.async();
 
         var chr = "chr1",
             bpStart = 67655271,
             bpEnd = 67684468,
-            featureSource = new igv.FeatureSource({
+            featureSource = new FeatureSource({
                     format: 'bed',
                     indexed: false,
                     url: 'data/bed/basic_feature_3_columns.bed'
@@ -253,11 +276,11 @@ function runBedTests() {
         });
     });
 
-    QUnit.test("BED track line", function(assert) {
+    QUnit.test("BED track line", function (assert) {
 
         var done = assert.async();
 
-        var featureSource = new igv.FeatureSource({
+        var featureSource = new FeatureSource({
                 format: 'bed',
                 indexed: false,
                 url: 'data/bed/basic_feature_3_columns.bed'
@@ -274,14 +297,14 @@ function runBedTests() {
 
     });
 
-    QUnit.test("BED query gzip", function(assert) {
+    QUnit.test("BED query gzip", function (assert) {
 
         var done = assert.async();
 
         var chr = "chr1",
             bpStart = 67655271,
             bpEnd = 67684468,
-            featureSource = new igv.FeatureSource({
+            featureSource = new FeatureSource({
                     format: 'bed',
                     url: 'data/bed/basic_feature_3_columns.bed.gzipped'
                 },
@@ -298,7 +321,7 @@ function runBedTests() {
 
     });
 
-    QUnit.test("broadPeak parsing ", function(assert) {
+    QUnit.test("broadPeak parsing ", function (assert) {
 
         var done = assert.async();
 
@@ -307,7 +330,7 @@ function runBedTests() {
             bpStart,
             bpEnd;
 
-        featureSource = new igv.FeatureSource({
+        featureSource = new FeatureSource({
             format: 'broadPeak',
             url: "data/peak/test.broadPeak"
         });
@@ -336,7 +359,7 @@ function runBedTests() {
     });
 
 
-    QUnit.test("refflat parsing ", function(assert) {
+    QUnit.test("refflat parsing ", function (assert) {
 
         var done = assert.async();
 
@@ -345,7 +368,7 @@ function runBedTests() {
             bpStart,
             bpEnd;
 
-        featureSource = new igv.FeatureSource({
+        featureSource = new FeatureSource({
                 format: 'refflat',
                 url: "data/bed/myc_refFlat.txt"
             },
@@ -376,7 +399,7 @@ function runBedTests() {
     });
 
 
-    QUnit.test("genepred parsing ", function(assert) {
+    QUnit.test("genepred parsing ", function (assert) {
 
         var done = assert.async();
 
@@ -385,7 +408,7 @@ function runBedTests() {
             bpStart,
             bpEnd;
 
-        featureSource = new igv.FeatureSource({
+        featureSource = new FeatureSource({
                 format: 'genePred',
                 url: "data/bed/genePred_myc_hg38.txt"
             },
@@ -416,7 +439,7 @@ function runBedTests() {
     });
 
 
-    QUnit.test("refgene parsing ", function(assert) {
+    QUnit.test("refgene parsing ", function (assert) {
 
         var done = assert.async();
 
@@ -425,7 +448,7 @@ function runBedTests() {
             bpStart,
             bpEnd;
 
-        featureSource = new igv.FeatureSource({
+        featureSource = new FeatureSource({
                 format: 'refgene',
                 url: "data/bed/myc_refGene_genePredExt.txt"
             },
@@ -452,7 +475,7 @@ function runBedTests() {
             done();
 
         }, undefined);
-
     });
-
 }
+
+export default runBedTests;

@@ -103,7 +103,7 @@
                     {
                         type: 'alignment',
                         format: 'bam',
-                        url: 'https://data.broadinstitute.org/igvdata/1KG/b37/data/HG02450/alignment/HG02450.mapped.ILLUMINA.bwa.ACB.low_coverage.20120522.bam',
+                        url: 'https://1000genomes.s3.amazonaws.com/phase3/data/HG02450/alignment/HG02450.mapped.ILLUMINA.bwa.ACB.low_coverage.20120522.bam',
                         name: 'HG02450'
                     }
 
@@ -153,7 +153,7 @@
 
             tabs.forEach(function (tab) {
 
-                if (tab.id == selectedId) {
+                if (tab.id === selectedId) {
                     tab.link.className = 'selected';
                     tab.content.className = 'tabContent';
                 } else {
@@ -171,7 +171,7 @@
 
         function getFirstChildWithTagName(element, tagName) {
             for (var i = 0; i < element.childNodes.length; i++) {
-                if (element.childNodes[i].nodeName == tagName) return element.childNodes[i];
+                if (element.childNodes[i].nodeName === tagName) return element.childNodes[i];
             }
         }
 

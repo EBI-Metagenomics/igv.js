@@ -26,36 +26,19 @@
 /**
  * Created by mberacochea on 08/08/19.
  */
-var igv = (function (igv) {
 
-    "use strict";
-    
-    igv.EBIconfigOverrides = function () {
-        /* Track colour selector */
-        igv.createColorSwatchSelector = createColorSwatchSelectorEBI.bind(igv);
-        igv.TrackView.prototype.createColorPicker = createColorPickerEBI;
-        igv.TrackView.prototype.setColorAttr = setColorAttrEBI;
-    }
+import $ from "../vendor/jquery-3.3.1.slim.js";
+import TrackView from '../trackView.js';
+import { appleCrayonPalette } from "../util/colorPalletes.js"
+import IGVColor from "../igv-color.js"
+import GenericContainer from "../ui/genericContainer.js";
 
-    /* TrackView overrides */
-    /**
-     * Change the selected attribute
-     */
-    function setColorAttrEBI(attr) {
-        igv.ebi.setSelectedAttribute(attr);
-        this.repaintViews(true);
-    };
 
-    /**
-     * Color Picker.
-     * This method creates the color picker an hooks the 
-     * color change callback.
-     */
-    function createColorPickerEBI() {
-
+export const EBIconfigOverrides = function () {
+    /* Track colour selector */
+    TrackView.prototype.createColorPicker = function () {
         let self = this;
-
-        self.colorPicker = new igv.genericContainer({
+        self.colorPicker = new GenericContainer({
             $parent: $(this.trackDiv),
             width: 384,
             height: undefined,
@@ -64,22 +47,23 @@ var igv = (function (igv) {
             }
         });
 
-        igv.createColorSwatchSelector(this.colorPicker.$container,
-            rgb => this.setColor(rgb), attr => this.setColorAttr(attr), this.track.color);
+        this.createColorSwatchSelectorEBI(this.colorPicker.$container,
+            rgb => this.setColor(rgb),
+            attr => this.setColorAttr(attr),
+        );
 
         self.colorPicker.$container.hide();
     };
+    /*
+    * Creates the color changer.
+    * @param {HTMLNode} $genericContainer The containter element.
+    * @param {function} colorHandler Callback to be called on colour change. 
+    * @param {function} colorAttrHandler Callback that changes the selected colour (EBI)
+    */
+    TrackView.prototype.createColorSwatchSelectorEBI = function ($genericContainer, colorHandler, colorAttrHandler) {
 
-    /**
-     * Creates the color changer.
-     * @param {HTMLNode} $genericContainer The containter element.
-     * @param {function} colorHandler Callback to be called on colour change. 
-     * @param {function} colorAttrHandler Callback that changes the selected colour (EBI)
-     * @param {string} defaultColor Default colour 
-     */
-    function createColorSwatchSelectorEBI($genericContainer, colorHandler, colorAttrHandler, defaultColor) {
-
-        let appleColors = Object.values(igv.appleCrayonPalette);
+        const defaultColor = this.track.color;
+        let appleColors = Object.values(appleCrayonPalette);
 
         if (defaultColor && !(typeof defaultColor === 'function')) {
 
@@ -87,13 +71,13 @@ var igv = (function (igv) {
             appleColors.splice(11, 1);
 
             // Add default color.
-            appleColors.unshift(igv.Color.rgbToHex(defaultColor));
+            appleColors.unshift(IGVColor.rgbToHex(defaultColor));
         }
 
         let $swatchSubtitle = $('<h3 style="clear:both; width:100%">Color by unique color</h3>');
 
         $genericContainer.append($swatchSubtitle);
-        
+
         for (let color of appleColors) {
 
             let $swatch = $('<div>', { class: 'igv-color-swatch' });
@@ -127,9 +111,9 @@ var igv = (function (igv) {
         }
 
         /* EBI extension for the colours. */
-        const colorAttributes = this.browser.config.ebi.colorAttributes;
+        const colorAttributes = this.browser.ebi.colorAttributes;
         if (colorAttributes && colorAttributes.length > 0) {
-            const $tooltip = $('<span class="icon icon-generic" data-icon="?" ' + 
+            const $tooltip = $('<span class="icon icon-generic" data-icon="?" ' +
                 ' data-tooltip tabindex="1" title="Color by attribute."></span>');
             const $select = $('<select class="igv-colour-selector"></select>');
             for (let attribute of colorAttributes) {
@@ -138,11 +122,15 @@ var igv = (function (igv) {
             $select.change(() => {
                 colorAttrHandler($select.val());
             });
-            igv.browser.$toggle_button_container.append($tooltip);
-            igv.browser.$toggle_button_container.append($select);
+            this.browser.$toggle_button_container.append($tooltip);
+            this.browser.$toggle_button_container.append($select);
         }
+    }
+    /**
+     * Change the selected attribute
+     */
+    TrackView.prototype.setColorAttr = function (attr) {
+        this.browser.ebi.setSelectedAttribute(attr);
+        this.repaintViews(true);
     };
-
-    return igv;
-
-}) (igv || {});
+}

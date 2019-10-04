@@ -1,13 +1,16 @@
 {
-  "genome":  "hg19",
-  "locus": ["myc", "egfr"],
+  "genome": "hg19",
+  "locus": [
+    "myc",
+    "egfr"
+  ],
   "tracks": [
     {
       "type": "sequence",
       "order": -1.7976931348623157e+308
     },
     {
-      "url": "http://data.broadinstitute.org/igvdata/1KG/b37/data/HG02450/alignment/HG02450.mapped.ILLUMINA.bwa.ACB.low_coverage.20120522.bam",
+      "url": "https://1000genomes.s3.amazonaws.com/phase3/data/HG02450/alignment/HG02450.mapped.ILLUMINA.bwa.ACB.low_coverage.20120522.bam",
       "label": "HG02450",
       "order": 1,
       "sourceType": "file",

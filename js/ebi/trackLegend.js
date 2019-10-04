@@ -26,83 +26,81 @@
 /**
  * Created by mberacochea on 08/08/19.
  */
-var igv = (function (igv) {
 
-    "use strict";
+import $ from "../vendor/jquery-3.3.1.slim.js";
+import GenericContainer from "../ui/genericContainer.js";
+import {EBIextension,EBIDefaultColor,EBIDefaultColorAbs} from "./ebiExtension.js";
 
-    /* New nav bar item (Legend) */
-    igv.TrackLegendControl = function ($parent, browser) {
-        
-        var self = this;
+const TrackLegendControl = function ($parent, browser) {
 
-        this.browser = browser;
-        
-        this.$button = $('<div class="igv-nav-bar-button">');
-        $parent.append(this.$button);
-        this.$button.text('legend');
+    var self = this;
 
-        this.legend = new igv.genericContainer({
-            $parent: browser.$root,
-            width: 384,
-            height: 'auto',
-            closeHandler: () => {
-                self.browser.trackLegendVisible = false;
-                self.$button.removeClass('igv-nav-bar-button-clicked');
-                self.legend.$container.hide();
-            }
-        });
+    this.browser = browser;
+    
+    this.$button = $('<div class="igv-nav-bar-button">');
+    $parent.append(this.$button);
+    this.$button.text('legend');
 
-        browser.trackLegendVisible = false;
-        self.legend.$container.hide();
+    this.legend = new GenericContainer({
+        $parent: browser.$root,
+        width: 384,
+        height: 'auto',
+        closeHandler: () => {
+            self.browser.trackLegendVisible = false;
+            self.$button.removeClass('igv-nav-bar-button-clicked');
+            self.legend.$container.hide();
+        }
+    });
 
-        const $legendContainter = $('<table class="legend-container"></table>');
+    browser.trackLegendVisible = false;
+    self.legend.$container.hide();
 
-        /* COG */
-        const $cogLegend = $('<table class="sub-legend"><caption>COG</caption></table>')
-        const cogMap = igv.EBIextension.prototype.COG_MAP;
-        const cogs = Object.keys(cogMap).sort();
+    const $legendContainter = $('<table class="legend-container"></table>');
 
-        for (var i = 0, len = cogs.length; i < len; i++) {
-            const key = cogs[i];
-            const $legendEntry = $('<tr class="legend-entry"></tr>');
-            const $color = $('<td class="legend-color" style="background:' + cogMap[key] + '"></td>');
-            const $label = $('<td class="legend-label">' + key + '</td>');
-            $legendEntry.append($color);
-            $legendEntry.append($label);
-            $cogLegend.append($legendEntry);
-        };
+    /* COG */
+    const $cogLegend = $('<table class="sub-legend"><caption>COG</caption></table>')
+    const cogMap = EBIextension.prototype.COG_MAP;
+    const cogs = Object.keys(cogMap).sort();
 
-        const $otherLegend = $('<table class="sub-legend"><caption>For other attributes</caption></table>');
-        const $prescenceTr = $('<tr class="legend-entry"></tr>');
-        $prescenceTr.append($('<td class="legend-color" style="background:'+igv.EBIDefaultColor+ '"></td>'));
-        $prescenceTr.append($('<td class="legend-label">Presence</td>'));
-        $otherLegend.append($prescenceTr);
+    for (var i = 0, len = cogs.length; i < len; i++) {
+        const key = cogs[i];
+        const $legendEntry = $('<tr class="legend-entry"></tr>');
+        const $color = $('<td class="legend-color" style="background:' + cogMap[key] + '"></td>');
+        const $label = $('<td class="legend-label">' + key + '</td>');
+        $legendEntry.append($color);
+        $legendEntry.append($label);
+        $cogLegend.append($legendEntry);
+    }
 
-        const $abscenceTr = $('<tr class="legend-entry"></tr>');
-        $abscenceTr.append($('<td class="legend-color" style="background:'+igv.EBIDefaultColorAbs+'"></td>'));
-        $abscenceTr.append($('<td class="legend-label">Absence</td>'));
-        $otherLegend.append($abscenceTr);
+    const $otherLegend = $('<table class="sub-legend"><caption>For other attributes</caption></table>');
+    const $prescenceTr = $('<tr class="legend-entry"></tr>');
+    $prescenceTr.append($('<td class="legend-color" style="background:'+ EBIDefaultColor + '"></td>'));
+    $prescenceTr.append($('<td class="legend-label">Presence</td>'));
+    $otherLegend.append($prescenceTr);
 
-        $legendContainter.append($cogLegend);
-        $legendContainter.append($otherLegend);
-        
-        this.legend.$container.append($('<div class="legend-title">Legend</div>'));
-        this.legend.$container.append($legendContainter);
+    const $abscenceTr = $('<tr class="legend-entry"></tr>');
+    $abscenceTr.append($('<td class="legend-color" style="background:' + EBIDefaultColorAbs + '"></td>'));
+    $abscenceTr.append($('<td class="legend-label">Absence</td>'));
+    $otherLegend.append($abscenceTr);
 
-        this.$button.on('click', function () {
-            if (true === browser.trackLegendVisible) {
-                browser.trackLegendVisible = false;
-                self.$button.removeClass('igv-nav-bar-button-clicked');
-                self.legend.$container.hide();
-            } else {
-                browser.trackLegendVisible = true;
-                self.$button.addClass('igv-nav-bar-button-clicked');
-                self.legend.$container.show();
-            }
-        });
+    $legendContainter.append($cogLegend);
+    $legendContainter.append($otherLegend);
+    
+    this.legend.$container.append($('<div class="legend-title">Legend</div>'));
+    this.legend.$container.append($legendContainter);
 
-    };
+    this.$button.on('click', function () {
+        if (true === browser.trackLegendVisible) {
+            browser.trackLegendVisible = false;
+            self.$button.removeClass('igv-nav-bar-button-clicked');
+            self.legend.$container.hide();
+        } else {
+            browser.trackLegendVisible = true;
+            self.$button.addClass('igv-nav-bar-button-clicked');
+            self.legend.$container.show();
+        }
+    });
 
-    return igv;
+};
 
-}) (igv || {});
+export default TrackLegendControl;
