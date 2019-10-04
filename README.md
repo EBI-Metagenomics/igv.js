@@ -21,8 +21,7 @@ Also JQuery and underscore were removed from the build.
 
 This project is installed on the MGnify platform using npm.
 
-The current version is based on the release `v2.2.9`. The EBI versioning for this repo is: `v{igv team tag}+ebi{ebi custom build}`.
-
+The current version is based on the release `v2.3.0`. The EBI versioning for this repo is: `v{igv team tag}+ebi{ebi custom build}`.
 
 As ebi-metagenomics-client utilises babel, this should be disabled when building this project (remove babel-polyfill from webpack.config.js entries to produce a client-compatible dist.). However the demo still requires the polyfills to function, this required manual edition of the webpack file at the moment.
 
