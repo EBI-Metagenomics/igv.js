@@ -43,8 +43,8 @@ import igvxhr from "./igvxhr.js";
 import oauth from "./oauth.js";
 import google from "./google/googleUtils.js";
 import {createIcon} from "./igv-icons.js";
-import {EBIextension} from "./ebi/ebiExtension.js";
-import {EBIconfigOverrides} from "./ebi/ebiOverrides.js";
+// import {MgnifyExtension} from "./mgnify/mgnifyExtension.js";
+import {MgnifyConfigOverrides} from "./mgnify/mgnifyOverrides.js";
 
 const version = "@VERSION";
 
@@ -111,9 +111,11 @@ async function createBrowser(parentDiv, config) {
         oauth.setToken(config.oauthToken);
     }
 
-    browser.ebi = new EBIextension(browser, config);
+    // TODO: remove?
+    // browser.ebi = new MgnifyExtension(browser, config);
+
     // Patch some methods in TrackView
-    EBIconfigOverrides();
+    MgnifyConfigOverrides();
 
     return loadSession(config)
 

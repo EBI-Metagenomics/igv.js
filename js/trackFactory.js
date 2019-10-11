@@ -9,6 +9,7 @@ import VariantTrack from "./variant/variantTrack.js";
 import EqtlTrack from "./gtex/eqtlTrack.js";
 import GWASTrack from "./gwas/gwasTrack.js";
 import RnaStructTrack from "./rna/rnaStruct.js";
+import MgnifyFeatureTrack  from "./mgnify/mgnifyFeatureTrack.js"
 
 const TrackFactory = {
     'sequence': (config, browser) => {
@@ -43,6 +44,9 @@ const TrackFactory = {
     },
     'arc': (config, browser) => {
         return new RnaStructTrack(config, browser);
+    },
+    'mgnify-feature': (config, browser) => {
+        return new MgnifyFeatureTrack(config, browser);
     }
 }
 

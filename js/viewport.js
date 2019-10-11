@@ -350,13 +350,6 @@ ViewPort.prototype.repaint = async function (tile) {
 
     const features = tile.features;
 
-    if (features && this.browser.config.ebi.colorAttributes) {
-        for (let i = 0, l = tile.features.length; i < l; i++) {
-            const ebiColor = this.browser.ebi.colorForAttribute(tile.features[i]);
-            tile.features[i].color = ebiColor; 
-        }
-    }
-
     const roiFeatures = tile.roiFeatures;
     const genomicState = this.genomicState;
     const referenceFrame = genomicState.referenceFrame;

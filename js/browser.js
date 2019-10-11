@@ -697,6 +697,9 @@ Browser.prototype.createTrack = function (config) {
         case "snp":
             track = TrackFactory["feature"](trackConfig, this);
             break;
+        case "mgnify-annotation":
+            track = TrackFactory["mgnify-feature"](trackConfig, this);
+            break;            
         default:
             if (TrackFactory.hasOwnProperty(type)) {
                 track = TrackFactory[type](trackConfig, this);

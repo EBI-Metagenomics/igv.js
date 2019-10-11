@@ -207,7 +207,7 @@ TrackView.prototype.appendLeftHandGutter = function($parent) {
 TrackView.prototype.appendRightHandGutter = function($parent) {
     let $div = $('<div class="igv-right-hand-gutter">');
     $parent.append($div);
-    createTrackGearPopover.call(this, $div);
+    createTrackGearPopover.call(this, $div);   
 }
 
 // Free function for juicebox -- do not attach to prototype!!!

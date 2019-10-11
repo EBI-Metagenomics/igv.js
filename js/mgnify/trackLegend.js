@@ -29,7 +29,7 @@
 
 import $ from "../vendor/jquery-3.3.1.slim.js";
 import GenericContainer from "../ui/genericContainer.js";
-import {EBIextension,EBIDefaultColor,EBIDefaultColorAbs} from "./ebiExtension.js";
+import {MgnifyExtension,MgnifyDefaultColor,MgnifyDefaultColorAbs} from "./mgnifyExtension.js";
 
 const TrackLegendControl = function ($parent, browser) {
 
@@ -59,7 +59,7 @@ const TrackLegendControl = function ($parent, browser) {
 
     /* COG */
     const $cogLegend = $('<table class="sub-legend"><caption>COG</caption></table>')
-    const cogMap = EBIextension.prototype.COG_MAP;
+    const cogMap = MgnifyExtension.prototype.COG_MAP;
     const cogs = Object.keys(cogMap).sort();
 
     for (var i = 0, len = cogs.length; i < len; i++) {
@@ -74,12 +74,12 @@ const TrackLegendControl = function ($parent, browser) {
 
     const $otherLegend = $('<table class="sub-legend"><caption>For other attributes</caption></table>');
     const $prescenceTr = $('<tr class="legend-entry"></tr>');
-    $prescenceTr.append($('<td class="legend-color" style="background:'+ EBIDefaultColor + '"></td>'));
+    $prescenceTr.append($('<td class="legend-color" style="background:'+ MgnifyDefaultColor + '"></td>'));
     $prescenceTr.append($('<td class="legend-label">Presence</td>'));
     $otherLegend.append($prescenceTr);
 
     const $abscenceTr = $('<tr class="legend-entry"></tr>');
-    $abscenceTr.append($('<td class="legend-color" style="background:' + EBIDefaultColorAbs + '"></td>'));
+    $abscenceTr.append($('<td class="legend-color" style="background:' + MgnifyDefaultColorAbs + '"></td>'));
     $abscenceTr.append($('<td class="legend-label">Absence</td>'));
     $otherLegend.append($abscenceTr);
 
