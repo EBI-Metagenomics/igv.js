@@ -30,3 +30,13 @@
     width: 1em;
     cursor: auto;
 }
+
+.igv-trackgear-popover-header > .igv-trackgear-popover-header-title {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    cursor: default !important;
+    color: #000;
+    font-weight: bold;
+}
