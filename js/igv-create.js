@@ -110,10 +110,7 @@ async function createBrowser(parentDiv, config) {
     if (config.oauthToken) {
         oauth.setToken(config.oauthToken);
     }
-
-    // TODO: remove?
-    // browser.ebi = new MgnifyExtension(browser, config);
-
+   
     // Patch some methods in TrackView
     MgnifyConfigOverrides();
 

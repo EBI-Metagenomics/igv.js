@@ -1,29 +1,15 @@
-# EBI notes
-The following is a fork of the igv.js project, adapted to include additional functionality (colouring tracks by attributes).
+# EBI-MGnify notes
+The following is a fork of the igv.js project, adapted to include additional functionality used on the MGnify service.
 
-In order to simplify the upgrade the modifications were made (as much as possible) on separate files. The modifications and patch are on the `js/ebi/` folder.
+In order to simplify the upgrade the modifications were made (as much as possible) on separate files. The modifications and patch are on the `js/mgnify/` folder.
 
-Some minor modifications were necessary on the repository on the files `igv-create.js` and `viewport.js`. The plan is to incorporate the track colour by attribute and submit a PR to the igv-team (there is no time-frame for this).
+Some minor modifications were necessary on the repository on the files `igv-create.js`. The plan is to incorporate the track colour by attribute and submit a PR to the igv-team (there is no time-frame for this).
 
-This custom build only has the following folders (as some features are not used in MGnify):
-
-* 'js/*.js'
-* 'js/ebi/*.js'
-* 'js/feature/*.js'
-* 'js/session/*.js'
-* 'js/ui/*.js'
-* 'js/google/*.js'
-
-
-Also JQuery and underscore were removed from the build.
-
-## EBI releases
+## EBI-MGnify releases
 
 This project is installed on the MGnify platform using npm.
 
-The current version is based on the release `v2.3.0`. The EBI versioning for this repo is: `v{igv team tag}+ebi{ebi custom build}`.
-
-As ebi-metagenomics-client utilises babel, this should be disabled when building this project (remove babel-polyfill from webpack.config.js entries to produce a client-compatible dist.). However the demo still requires the polyfills to function, this required manual edition of the webpack file at the moment.
+The current version is based on the release `v2.3.0`. The MGnify versioning for this repo is: `v{igv team tag}+mgnify{mgnify custom build}`.
 
 # igv.js - source docs.
 [![Build Status](https://travis-ci.org/igvteam/igv.js.svg?branch=master)](https://travis-ci.org/igvteam/igv.js)
