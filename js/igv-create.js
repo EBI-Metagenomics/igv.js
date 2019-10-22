@@ -43,8 +43,8 @@ import igvxhr from "./igvxhr.js";
 import oauth from "./oauth.js";
 import google from "./google/googleUtils.js";
 import {createIcon} from "./igv-icons.js";
-// import {MgnifyExtension} from "./mgnify/mgnifyExtension.js";
 import {MgnifyConfigOverrides} from "./mgnify/mgnifyOverrides.js";
+import TrackLegendControl from "./mgnify/trackLegend.js";
 
 const version = "@VERSION";
 
@@ -354,6 +354,10 @@ function createStandardControls(browser, config) {
     // SVG save button
     if (config.showSVGButton) {
         browser.svgSaveControl = new SVGSaveControl($toggle_button_container, browser);
+    }
+
+    if (config.showLegend) {
+        new TrackLegendControl($toggle_button_container, browser);
     }
 
     // zoom widget

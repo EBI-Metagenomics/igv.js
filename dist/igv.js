@@ -52358,53 +52358,113 @@ Context.prototype = {
   };
 
   var COG_MAP = {
-    // Colour blind safe: https://gka.github.io/palettes/#/23|s|1d4097,a8a8a8,87352f|ffaff9,908300,17439b|0|0
+    // https://gka.github.io/palettes/#/23|s|1d4097,a8a8a8,87352f|ffaff9,908300,17439b|0|0
     'A': '#1d4097',
     // RNA processing and modification
-    'B': '#294a99',
+    'B': '#36539a',
     // Chromatin Structure and dynamics
-    'C': '#36539a',
+    'C': '#50669d',
     // Energy production and conversion
-    'D': '#435c9c',
+    'D': '#6979a0',
     // Cell cycle control and mitosis
-    'E': '#4f669d',
+    'E': '#828ca3',
     // Amino Acid metabolis and transport
-    'F': '#5c6f9f',
+    'F': '#9b9fa6',
     // Nucleotide metabolism and transport
-    'G': '#6979a0',
+    'G': '#a59e9d',
     // Carbohydrate metabolism and transport
-    'H': '#7582a2',
+    'H': '#9f8987',
     // Coenzyme metabolis
-    'I': '#828ba3',
+    'I': '#997471',
     // Lipid metabolism
-    'J': '#8e95a5',
+    'J': '#935f5b',
     // Tranlsation
-    'K': '#9b9ea6',
+    'K': '#8d4a45',
     // Transcription
-    'L': '#a8a8a8',
+    'L': '#87352f',
     // Replication and repair
-    'M': '#a59d9d',
+    'M': '#eba7cc',
     // Cell wall/membrane/envelop biogenesis
-    'N': '#a29392',
+    'N': '#d79f9e',
     // Cell motility
-    'O': '#9f8987',
+    'O': '#c29771',
     // Post-translational modification, protein turnover, chaperone functions
-    'P': '#9c7e7c',
+    'P': '#ae8f44',
     // Inorganic ion transport and metabolism
-    'Q': '#997471',
+    'Q': '#9a8717',
     // Secondary Structure
-    'T': '#966966',
+    'T': '#937a03',
     // Signal Transduction
-    'U': '#935f5b',
+    'U': '#9a690a',
     // Intracellular trafficing and secretion
-    'Y': '#905550',
+    'Y': '#a15711',
     // Nuclear structure
-    'Z': '#8d4a45',
+    'Z': '#a84617',
     // Cytoskeleton
-    'S': '#8a403a',
+    'S': '#af341e',
     // Function Unknown
-    'R': '#87352f' // General Functional Prediction only
+    'R': '#b62325' // General Functional Prediction only
 
+  };
+  var ANTISMASH_MAP = {
+    // https://gka.github.io/palettes/#/58|d|00429d,96ffea,ffffe0|ffffe0,ff005e,93003a|1|1
+    'acyl_amino_acids': '#00429d',
+    'amglyccycl': '#1448a0',
+    'aminocoumarin': '#204fa3',
+    'arylpolyene': '#2955a6',
+    'bacteriocin': '#315ca9',
+    'betalactone': '#3862ac',
+    'blactam': '#3f69af',
+    'bottromycin': '#466fb2',
+    'butyrolactone': '#4c76b5',
+    'CDPS': '#527db7',
+    'cyanobactin': '#5884ba',
+    'ectoine': '#5e8abd',
+    'fatty_acid': '#6491c0',
+    'fungal-RiPP': '#6a98c2',
+    'furan': '#709fc5',
+    'fused': '#76a6c8',
+    'glycocin': '#7cadca',
+    'halogenated': '#83b4cd',
+    'head_to_tail': '#89bbcf',
+    'hglE-KS': '#90c2d2',
+    'hserlactone': '#97c9d4',
+    'indole': '#9fd0d6',
+    'ladderane': '#a7d6d8',
+    'lanthipeptide': '#afddda',
+    'LAP': '#b8e4dc',
+    'lassopeptide': '#c2eade',
+    'linaridin': '#ccf1e0',
+    'lipolanthine': '#d9f7e1',
+    'melanin': '#e8fce1',
+    'microviridin': '#fff6d9',
+    'NAGGN': '#ffedd2',
+    'nrps-like': '#ffe4cc',
+    'nrps': '#ffdbc5',
+    'nucleoside': '#ffd2be',
+    'oligosaccharide': '#ffc8b7',
+    'other': '#ffbfb0',
+    'PBDE': '#ffb5a9',
+    'phenazine': '#ffaba3',
+    'phosphoglycolipid': '#ffa19c',
+    'phosphonate': '#fe9795',
+    'PKS-like': '#fc8e8e',
+    'PpyS-KS': '#f98588',
+    'proteusin': '#f67c82',
+    'PUFA': '#f2737d',
+    'RaS-RiPP': '#ee6a77',
+    'resorcinol': '#e96171',
+    'saccharide': '#e4586c',
+    'sactipeptide': '#df4f66',
+    'siderophore': '#da4661',
+    'T1PKS': '#d43d5c',
+    'T2PKS': '#cd3457',
+    'T3PKS': '#c62b53',
+    'terpene': '#bf234e',
+    'thioamide-NRP': '#b71a4a',
+    'thiopeptide': '#af1145',
+    'transAT-PKS': '#9d023e',
+    'tropodithietic-acid': '#93003a'
   };
   /**
    * Get the colour for the COG cateogry.
@@ -52412,9 +52472,18 @@ Context.prototype = {
    * applies if the suplied category is not found (for example: multiles COG categories)
    */
 
-  function getCOGcolour(cog) {
+  function getCOGColour(cog) {
     return COG_MAP[cog] || COG_MAP['R'];
   }
+  /**
+   * Get the colour for the antiSMASH genecluster cateogry.
+  */
+
+  function getAntiSMASHColour(category) {
+    return ANTISMASH_MAP[category] || COLOUR_PRESENCE;
+  }
+  var COLOUR_PRESENCE = '#ff726e';
+  var COLOUR_ABSENCE = '#000096';
 
   /**
    * EBI-MGnify modification of the FeatureTrack.
@@ -52448,7 +52517,7 @@ Context.prototype = {
           propertyValue = _ref2[1];
 
       items.push({
-        object: createCheckbox(propertyName, self.config.colorBy === propertyValue),
+        object: createCheckbox(propertyName, propertyValue === self.config.colorBy),
         click: function click() {
           self.config.colorBy = propertyValue;
           self.trackView.checkContentHeight();
@@ -52555,26 +52624,26 @@ Context.prototype = {
     var match = regex.exec(feature.attributeString);
 
     if (!match) {
-      return [this.color, undefined];
+      return [COLOUR_ABSENCE, undefined];
     }
 
     var value = match[1];
 
     switch (this.config.colorBy) {
-      case 'antiSMASH':
-        {
-          return ['red', value];
-        }
       // eslint-disable-next-line no-fallthrough
-
       case 'COG':
         {
-          return [getCOGcolour(value), value];
+          return [getCOGColour(value), value];
+        }
+
+      case 'antiSMASH':
+        {
+          return [getAntiSMASHColour(value), value];
         }
       // eslint-disable-next-line no-fallthrough
 
       default:
-        return [this.color, value];
+        return [COLOUR_PRESENCE, value];
     }
   }
   /**
@@ -57718,6 +57787,91 @@ Context.prototype = {
     };
   };
 
+  /*
+   * The MIT License (MIT)
+   *
+   * Copyright (c) 2019 EMBL-EBI
+   *
+   * Permission is hereby granted, free of charge, to any person obtaining a copy
+   * of this software and associated documentation files (the "Software"), to deal
+   * in the Software without restriction, including without limitation the rights
+   * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+   * copies of the Software, and to permit persons to whom the Software is
+   * furnished to do so, subject to the following conditions:
+   *
+   * The above copyright notice and this permission notice shall be included in
+   * all copies or substantial portions of the Software.
+   *
+   *
+   * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+   * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+   * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+   * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+   * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+   * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+   * THE SOFTWARE.
+   */
+
+  var TrackLegendControl = function TrackLegendControl($parent, browser) {
+    var self = this;
+    this.browser = browser;
+    this.$button = $('<div class="igv-nav-bar-button">');
+    $parent.append(this.$button);
+    this.$button.text('legend');
+    this.legend = new GenericContainer({
+      $parent: browser.$root,
+      width: 384,
+      height: 'auto',
+      closeHandler: function closeHandler() {
+        self.browser.trackLegendVisible = false;
+        self.$button.removeClass('igv-nav-bar-button-clicked');
+        self.legend.$container.hide();
+      }
+    });
+    browser.trackLegendVisible = false;
+    self.legend.$container.hide();
+    var $legendContainter = $('<table class="legend-container"></table>');
+    /* COG */
+
+    var $cogLegend = $('<table class="sub-legend"><caption>COG</caption></table>');
+    var cogs = Object.keys(COG_MAP).sort();
+
+    for (var i = 0, len = cogs.length; i < len; i++) {
+      var key = cogs[i];
+      var $legendEntry = $('<tr class="legend-entry"></tr>');
+      var $color = $('<td class="legend-color" style="background:' + COG_MAP[key] + '"></td>');
+      var $label = $('<td class="legend-label">' + key + '</td>');
+      $legendEntry.append($color);
+      $legendEntry.append($label);
+      $cogLegend.append($legendEntry);
+    }
+
+    var $otherLegend = $('<table class="sub-legend"><caption>For other attributes</caption></table>');
+    var $prescenceTr = $('<tr class="legend-entry"></tr>');
+    $prescenceTr.append($('<td class="legend-color" style="background:' + COLOUR_PRESENCE + '"></td>'));
+    $prescenceTr.append($('<td class="legend-label">Presence</td>'));
+    $otherLegend.append($prescenceTr);
+    var $abscenceTr = $('<tr class="legend-entry"></tr>');
+    $abscenceTr.append($('<td class="legend-color" style="background:' + COLOUR_ABSENCE + '"></td>'));
+    $abscenceTr.append($('<td class="legend-label">Absence</td>'));
+    $otherLegend.append($abscenceTr);
+    $legendContainter.append($cogLegend);
+    $legendContainter.append($otherLegend);
+    this.legend.$container.append($('<div class="legend-title">Legend</div>'));
+    this.legend.$container.append($legendContainter);
+    this.$button.on('click', function () {
+      if (true === browser.trackLegendVisible) {
+        browser.trackLegendVisible = false;
+        self.$button.removeClass('igv-nav-bar-button-clicked');
+        self.legend.$container.hide();
+      } else {
+        browser.trackLegendVisible = true;
+        self.$button.addClass('igv-nav-bar-button-clicked');
+        self.legend.$container.show();
+      }
+    });
+  };
+
   var allBrowsers = [];
   /**
    * Create an igv.browser instance.  This object defines the public API for interacting with the genome browser.
@@ -57993,6 +58147,10 @@ Context.prototype = {
 
     if (config.showSVGButton) {
       browser.svgSaveControl = new SVGSaveControl($toggle_button_container, browser);
+    }
+
+    if (config.showLegend) {
+      new TrackLegendControl($toggle_button_container, browser);
     } // zoom widget
 
 

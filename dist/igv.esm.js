@@ -38095,30 +38095,91 @@ RNAFeatureSource.prototype.getFeatures = function (chr, start, end) {
 };
 
 const COG_MAP = {
-    // Colour blind safe: https://gka.github.io/palettes/#/23|s|1d4097,a8a8a8,87352f|ffaff9,908300,17439b|0|0
+    // https://gka.github.io/palettes/#/23|s|1d4097,a8a8a8,87352f|ffaff9,908300,17439b|0|0
     'A': '#1d4097', // RNA processing and modification
-    'B': '#294a99', // Chromatin Structure and dynamics
-    'C': '#36539a', // Energy production and conversion
-    'D': '#435c9c', // Cell cycle control and mitosis
-    'E': '#4f669d', // Amino Acid metabolis and transport
-    'F': '#5c6f9f', // Nucleotide metabolism and transport
-    'G': '#6979a0', // Carbohydrate metabolism and transport
-    'H': '#7582a2', // Coenzyme metabolis
-    'I': '#828ba3', // Lipid metabolism
-    'J': '#8e95a5', // Tranlsation
-    'K': '#9b9ea6', // Transcription
-    'L': '#a8a8a8', // Replication and repair
-    'M': '#a59d9d', // Cell wall/membrane/envelop biogenesis
-    'N': '#a29392', // Cell motility
-    'O': '#9f8987', // Post-translational modification, protein turnover, chaperone functions
-    'P': '#9c7e7c', // Inorganic ion transport and metabolism
-    'Q': '#997471', // Secondary Structure
-    'T': '#966966', // Signal Transduction
-    'U': '#935f5b', // Intracellular trafficing and secretion
-    'Y': '#905550', // Nuclear structure
-    'Z': '#8d4a45', // Cytoskeleton
-    'S': '#8a403a', // Function Unknown
-    'R': '#87352f', // General Functional Prediction only
+    'B': '#36539a', // Chromatin Structure and dynamics
+    'C': '#50669d', // Energy production and conversion
+    'D': '#6979a0', // Cell cycle control and mitosis
+    'E': '#828ca3', // Amino Acid metabolis and transport
+    'F': '#9b9fa6', // Nucleotide metabolism and transport
+    'G': '#a59e9d', // Carbohydrate metabolism and transport
+    'H': '#9f8987', // Coenzyme metabolis
+    'I': '#997471', // Lipid metabolism
+    'J': '#935f5b', // Tranlsation
+    'K': '#8d4a45', // Transcription
+    'L': '#87352f', // Replication and repair
+    'M': '#eba7cc', // Cell wall/membrane/envelop biogenesis
+    'N': '#d79f9e', // Cell motility
+    'O': '#c29771', // Post-translational modification, protein turnover, chaperone functions
+    'P': '#ae8f44', // Inorganic ion transport and metabolism
+    'Q': '#9a8717', // Secondary Structure
+    'T': '#937a03', // Signal Transduction
+    'U': '#9a690a', // Intracellular trafficing and secretion
+    'Y': '#a15711', // Nuclear structure
+    'Z': '#a84617', // Cytoskeleton
+    'S': '#af341e', // Function Unknown
+    'R': '#b62325', // General Functional Prediction only
+};
+
+const ANTISMASH_MAP = {
+    // https://gka.github.io/palettes/#/58|d|00429d,96ffea,ffffe0|ffffe0,ff005e,93003a|1|1
+    'acyl_amino_acids': '#00429d',
+    'amglyccycl': '#1448a0',
+    'aminocoumarin': '#204fa3',
+    'arylpolyene': '#2955a6',
+    'bacteriocin': '#315ca9',
+    'betalactone': '#3862ac',
+    'blactam': '#3f69af',
+    'bottromycin': '#466fb2',
+    'butyrolactone': '#4c76b5',
+    'CDPS': '#527db7',
+    'cyanobactin': '#5884ba',
+    'ectoine': '#5e8abd',
+    'fatty_acid': '#6491c0',
+    'fungal-RiPP': '#6a98c2',
+    'furan': '#709fc5',
+    'fused': '#76a6c8',
+    'glycocin': '#7cadca',
+    'halogenated': '#83b4cd',
+    'head_to_tail': '#89bbcf',
+    'hglE-KS': '#90c2d2',
+    'hserlactone': '#97c9d4',
+    'indole': '#9fd0d6',
+    'ladderane': '#a7d6d8',
+    'lanthipeptide': '#afddda',
+    'LAP': '#b8e4dc',
+    'lassopeptide': '#c2eade',
+    'linaridin': '#ccf1e0',
+    'lipolanthine': '#d9f7e1',
+    'melanin': '#e8fce1',
+    'microviridin': '#fff6d9',
+    'NAGGN': '#ffedd2',
+    'nrps-like': '#ffe4cc',
+    'nrps': '#ffdbc5',
+    'nucleoside': '#ffd2be',
+    'oligosaccharide': '#ffc8b7',
+    'other': '#ffbfb0',
+    'PBDE': '#ffb5a9',
+    'phenazine': '#ffaba3',
+    'phosphoglycolipid': '#ffa19c',
+    'phosphonate': '#fe9795',
+    'PKS-like': '#fc8e8e',
+    'PpyS-KS': '#f98588',
+    'proteusin': '#f67c82',
+    'PUFA': '#f2737d',
+    'RaS-RiPP': '#ee6a77',
+    'resorcinol': '#e96171',
+    'saccharide': '#e4586c',
+    'sactipeptide': '#df4f66',
+    'siderophore': '#da4661',
+    'T1PKS': '#d43d5c',
+    'T2PKS': '#cd3457',
+    'T3PKS': '#c62b53',
+    'terpene': '#bf234e',
+    'thioamide-NRP': '#b71a4a',
+    'thiopeptide': '#af1145',
+    'transAT-PKS': '#9d023e',
+    'tropodithietic-acid': '#93003a'
 };
 
 /**
@@ -38126,9 +38187,19 @@ const COG_MAP = {
  * If the category is not mapped then use the R, this also
  * applies if the suplied category is not found (for example: multiles COG categories)
  */
-function getCOGcolour(cog) {
+function getCOGColour(cog) {
     return COG_MAP[cog] || COG_MAP['R'];
 }
+
+/**
+ * Get the colour for the antiSMASH genecluster cateogry.
+*/
+function getAntiSMASHColour(category) {
+    return ANTISMASH_MAP[category] || COLOUR_PRESENCE;
+}
+
+const COLOUR_PRESENCE = '#ff726e';
+const COLOUR_ABSENCE = '#000096';
 
 /*
  * The MIT License (MIT)
@@ -38186,7 +38257,7 @@ MgnifyFeatureTrack.prototype.colorMenuItem = function () {
     }
     self.config.colorAttributes.forEach(function([propertyName, propertyValue]) {
         items.push({
-            object: createCheckbox(propertyName, self.config.colorBy === propertyValue),
+            object: createCheckbox(propertyName, propertyValue === self.config.colorBy),
             click: function() {
                 self.config.colorBy = propertyValue;
                 self.trackView.checkContentHeight();
@@ -38291,21 +38362,20 @@ function getFeatureData(feature) {
     let regex = new RegExp(this.config.colorBy + '=([^;]+)', 'i');
     let match = regex.exec(feature.attributeString);
     if (!match) {
-        return [this.color, undefined];
+        return [COLOUR_ABSENCE, undefined];
     }
     const value = match[1]; 
-    
     switch (this.config.colorBy) {
-        case 'antiSMASH': {
-            return ['red', value];
-        }
         // eslint-disable-next-line no-fallthrough
         case 'COG': {
-            return [getCOGcolour(value), value];
+            return [getCOGColour(value), value];
+        }
+        case 'antiSMASH': {
+            return [getAntiSMASHColour(value), value];
         }
         // eslint-disable-next-line no-fallthrough
         default:
-            return [this.color, value];
+            return [COLOUR_PRESENCE, value];
     }
 }
 
@@ -43019,6 +43089,101 @@ const MgnifyConfigOverrides = function () {
 /*
  * The MIT License (MIT)
  *
+ * Copyright (c) 2019 EMBL-EBI
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
+const TrackLegendControl = function ($parent, browser) {
+
+    var self = this;
+
+    this.browser = browser;    
+    this.$button = $('<div class="igv-nav-bar-button">');
+    $parent.append(this.$button);
+    this.$button.text('legend');
+
+    this.legend = new GenericContainer({
+        $parent: browser.$root,
+        width: 384,
+        height: 'auto',
+        closeHandler: () => {
+            self.browser.trackLegendVisible = false;
+            self.$button.removeClass('igv-nav-bar-button-clicked');
+            self.legend.$container.hide();
+        }
+    });
+
+    browser.trackLegendVisible = false;
+    self.legend.$container.hide();
+
+    const $legendContainter = $('<table class="legend-container"></table>');
+
+    /* COG */
+    const $cogLegend = $('<table class="sub-legend"><caption>COG</caption></table>');
+    const cogs = Object.keys(COG_MAP).sort();
+
+    for (var i = 0, len = cogs.length; i < len; i++) {
+        const key = cogs[i];
+        const $legendEntry = $('<tr class="legend-entry"></tr>');
+        const $color = $('<td class="legend-color" style="background:' + COG_MAP[key] + '"></td>');
+        const $label = $('<td class="legend-label">' + key + '</td>');
+        $legendEntry.append($color);
+        $legendEntry.append($label);
+        $cogLegend.append($legendEntry);
+    }
+
+    const $otherLegend = $('<table class="sub-legend"><caption>For other attributes</caption></table>');
+    const $prescenceTr = $('<tr class="legend-entry"></tr>');
+    $prescenceTr.append($('<td class="legend-color" style="background:'+ COLOUR_PRESENCE + '"></td>'));
+    $prescenceTr.append($('<td class="legend-label">Presence</td>'));
+    $otherLegend.append($prescenceTr);
+
+    const $abscenceTr = $('<tr class="legend-entry"></tr>');
+    $abscenceTr.append($('<td class="legend-color" style="background:' + COLOUR_ABSENCE + '"></td>'));
+    $abscenceTr.append($('<td class="legend-label">Absence</td>'));
+    $otherLegend.append($abscenceTr);
+
+    $legendContainter.append($cogLegend);
+    $legendContainter.append($otherLegend);
+    
+    this.legend.$container.append($('<div class="legend-title">Legend</div>'));
+    this.legend.$container.append($legendContainter);
+
+    this.$button.on('click', function () {
+        if (true === browser.trackLegendVisible) {
+            browser.trackLegendVisible = false;
+            self.$button.removeClass('igv-nav-bar-button-clicked');
+            self.legend.$container.hide();
+        } else {
+            browser.trackLegendVisible = true;
+            self.$button.addClass('igv-nav-bar-button-clicked');
+            self.legend.$container.show();
+        }
+    });
+
+};
+
+/*
+ * The MIT License (MIT)
+ *
  * Copyright (c) 2014 Broad Institute
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -43346,6 +43511,10 @@ function createStandardControls(browser, config) {
     // SVG save button
     if (config.showSVGButton) {
         browser.svgSaveControl = new SVGSaveControl($toggle_button_container, browser);
+    }
+
+    if (config.showLegend) {
+        new TrackLegendControl($toggle_button_container, browser);
     }
 
     // zoom widget

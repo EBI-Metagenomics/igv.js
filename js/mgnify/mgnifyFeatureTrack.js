@@ -24,7 +24,7 @@
  */
 
 import $ from '../vendor/jquery-3.3.1.slim.js';
-import {getCOGcolour} from './mgnifyColours.js';
+import {getCOGColour, getAntiSMASHColour, COLOUR_ABSENCE, COLOUR_PRESENCE} from './mgnifyColours.js';
 import FeatureTrack from '../feature/featureTrack.js';
 import IGVGraphics from '../igv-canvas.js';
 import IGVColor from '../igv-color.js';
@@ -63,7 +63,7 @@ MgnifyFeatureTrack.prototype.colorMenuItem = function () {
     }
     self.config.colorAttributes.forEach(function([propertyName, propertyValue]) {
         items.push({
-            object: createCheckbox(propertyName, self.config.colorBy === propertyValue),
+            object: createCheckbox(propertyName, propertyValue === self.config.colorBy),
             click: function() {
                 self.config.colorBy = propertyValue;
                 self.trackView.checkContentHeight();
@@ -168,21 +168,20 @@ function getFeatureData(feature) {
     let regex = new RegExp(this.config.colorBy + '=([^;]+)', 'i');
     let match = regex.exec(feature.attributeString);
     if (!match) {
-        return [this.color, undefined];
+        return [COLOUR_ABSENCE, undefined];
     }
     const value = match[1]; 
-    
     switch (this.config.colorBy) {
-        case 'antiSMASH': {
-            return ['red', value];
-        }
         // eslint-disable-next-line no-fallthrough
         case 'COG': {
-            return [getCOGcolour(value), value];
+            return [getCOGColour(value), value];
+        }
+        case 'antiSMASH': {
+            return [getAntiSMASHColour(value), value];
         }
         // eslint-disable-next-line no-fallthrough
         default:
-            return [this.color, value];
+            return [COLOUR_PRESENCE, value];
     }
 }
 
