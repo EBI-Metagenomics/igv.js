@@ -173,7 +173,15 @@ function getColourBy(feature) {
     if (!this.config.colorBy) {
         return this.config.defaultColour || this.color;
     }
-    let match = this.colorByRegex.exec(feature.attributeString);
+    // If there is a colorByRegex then the color regex is used
+    // that will prevent from changing if a different feature is selected
+    let regex = undefined;
+    if (this.colorByRegex) {
+        regex = this.colorByRegex;
+    } else {
+        regex = new RegExp(this.config.colorBy + '=([^;]+)', 'i');
+    }
+    let match = regex.exec(feature.attributeString);
     if (!match) {
         return this.config.defaultColour || COLOUR_ABSENCE;
     }
