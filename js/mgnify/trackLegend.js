@@ -29,13 +29,13 @@
 
 import $ from "../vendor/jquery-3.3.1.slim.js";
 import GenericContainer from "../ui/genericContainer.js";
-import {COG_MAP, COLOUR_ABSENCE, COLOUR_PRESENCE} from "./mgnifyColours";
+import {COG_MAP, ANTISMASH_MAP_GK_LABELS, COLOUR_ABSENCE, COLOUR_PRESENCE} from "./mgnifyColours";
 
 const TrackLegendControl = function ($parent, browser) {
 
     var self = this;
 
-    this.browser = browser;TrackLegendControl
+    this.browser = browser;
     
     this.$button = $('<div class="igv-nav-bar-button">');
     $parent.append(this.$button);
@@ -61,7 +61,7 @@ const TrackLegendControl = function ($parent, browser) {
     const $cogLegend = $('<table class="sub-legend"><caption>COG</caption></table>')
     const cogs = Object.keys(COG_MAP).sort();
 
-    for (var i = 0, len = cogs.length; i < len; i++) {
+    for (let i = 0, len = cogs.length; i < len; i++) {
         const key = cogs[i];
         const $legendEntry = $('<tr class="legend-entry"></tr>');
         const $color = $('<td class="legend-color" style="background:' + COG_MAP[key] + '"></td>');
@@ -69,6 +69,20 @@ const TrackLegendControl = function ($parent, browser) {
         $legendEntry.append($color);
         $legendEntry.append($label);
         $cogLegend.append($legendEntry);
+    }
+
+    /* antiSMASH */
+    const $antiSMLegend = $('<table class="sub-legend"><caption>antiSMASH</caption></table>')
+    const asLabels = Object.keys(ANTISMASH_MAP_GK_LABELS);
+
+    for (let i = 0, len = asLabels.length; i < len; i++) {
+        const key = asLabels[i];
+        const $legendEntry = $('<tr class="legend-entry"></tr>');
+        const $color = $('<td class="legend-color" style="background:' + ANTISMASH_MAP_GK_LABELS[key] + '"></td>');
+        const $label = $('<td class="legend-label">' + key + '</td>');
+        $legendEntry.append($color);
+        $legendEntry.append($label);
+        $antiSMLegend.append($legendEntry);
     }
 
     const $otherLegend = $('<table class="sub-legend"><caption>For other attributes</caption></table>');
@@ -83,6 +97,7 @@ const TrackLegendControl = function ($parent, browser) {
     $otherLegend.append($abscenceTr);
 
     $legendContainter.append($cogLegend);
+    $legendContainter.append($antiSMLegend);
     $legendContainter.append($otherLegend);
     
     this.legend.$container.append($('<div class="legend-title">Legend</div>'));

@@ -1,0 +1,37 @@
+<script src="../../dist/igv.js"></script>
+
+<div id="igv-div" style="float:left; width:80%;">
+</div>
+<div id="igv-legend" style="float:right; width:20%;">
+</div>
+<style>
+    #igv-div {
+        max-height: 20em;
+    }
+</style>
+<script type="text/javascript">
+    var options =
+    {
+        showTrackLabelButton: true,
+        showTrackLabels: true,
+        reference: {
+            id: 'myid',
+            fastaURL: './region1.fasta',
+            indexed: false
+        },
+        tracks: [{
+            type: 'mgnify-annotation',
+            url: './region1.gff',
+            format: 'gff3',
+            displayMode: 'EXPANDED',
+            colorBy: 'gene_kinds',
+            defaultColour: '#BEBEBE',
+            labelBy: 'gene_clusters',
+        }],
+        showLegend: true,
+    };
+    igv.createBrowser(document.getElementById('igv-div'), options)
+        .then(function (browser) {
+            console.log("Created IGV browser");
+        })
+</script>

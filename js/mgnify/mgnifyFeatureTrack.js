@@ -43,6 +43,14 @@ const MgnifyFeatureTrack = extend(FeatureTrack,
 
         FeatureTrack.call(this, config, browser);
 
+        // configure the colorBy and labelBy
+        if (this.config.colorBy) {
+            this.colorByRegex = new RegExp(this.config.colorBy + '=([^;]+)', 'i');
+        }
+        if (this.config.labelBy) {
+            this.labelByRegex = new RegExp(this.config.labelBy + '=([^;]+)', 'i');
+        }
+
         // Set the render function.  This can optionally be passed in the config
         if (config.render) {
             this.render = config.render;
@@ -158,31 +166,47 @@ function calculateFeatureCoordinates(feature, bpStart, xScale) {
 }
 
 /**
- * TODO
- * @param feature Feature 
+ * Get the colour for an attribute based on the colourBy configuration.
+ * @param {Feature} feature a feature
  */
-function getFeatureData(feature) {
+function getColourBy(feature) {
     if (!this.config.colorBy) {
-        return [this.color, undefined];
+        return this.config.defaultColour || this.color;
     }
-    let regex = new RegExp(this.config.colorBy + '=([^;]+)', 'i');
-    let match = regex.exec(feature.attributeString);
+    let match = this.colorByRegex.exec(feature.attributeString);
     if (!match) {
-        return [COLOUR_ABSENCE, undefined];
+        return this.config.defaultColour || COLOUR_ABSENCE;
     }
-    const value = match[1]; 
+    const value = match[1];
     switch (this.config.colorBy) {
         // eslint-disable-next-line no-fallthrough
         case 'COG': {
-            return [getCOGColour(value), value];
+            return getCOGColour(value);
         }
-        case 'antiSMASH': {
-            return [getAntiSMASHColour(value), value];
+        // antiSMASH results
+        case 'gene_kinds': {
+            // antiSMASH is coloured based on the gene_kind
+            return getAntiSMASHColour(value);
         }
         // eslint-disable-next-line no-fallthrough
         default:
-            return [COLOUR_PRESENCE, value];
+            return COLOUR_PRESENCE;
     }
+}
+
+/**
+ * Get an attribute value for the label by an attribute value.
+ * @param feature Feature a feature
+ */
+function getLabelBy(feature) {
+    if (!this.config.labelBy) {
+        return undefined;
+    }
+    let match = this.labelByRegex.exec(feature.attributeString);
+    if (!match) {
+        return undefined;
+    }
+    return match[1];
 }
 
 /**
@@ -198,10 +222,12 @@ function renderFeature(feature, bpStart, xScale, pixelHeight, ctx, options) {
 
     const browser = this.browser;
 
-    let [featureColor, featureName] = getFeatureData.call(this, feature);
-    let color = featureColor || this.color;
-    feature.name = featureName;
+    const label = getLabelBy.call(this, feature);
+    if (label) {
+        feature.name = label;
+    }
 
+    let color =  getColourBy.call(this, feature) || this.color;
     if (feature.alpha && feature.alpha !== 1) {
         color = IGVColor.addAlpha(this.color, feature.alpha);
     }

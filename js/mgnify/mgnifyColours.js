@@ -25,7 +25,7 @@ export const COG_MAP = {
     'R': '#b62325', // General Functional Prediction only
 }
 
-const ANTISMASH_MAP = {
+const ANTISMASH_MAP_GC = {
     // https://gka.github.io/palettes/#/58|d|00429d,96ffea,ffffe0|ffffe0,ff005e,93003a|1|1
     'acyl_amino_acids': '#00429d',
     'amglyccycl': '#1448a0',
@@ -86,6 +86,24 @@ const ANTISMASH_MAP = {
     'tropodithietic-acid': '#93003a'
 }
 
+const ANTISMASH_MAP_GK = {
+    'biosynthetic': '#810e15',
+    'biosynthetic-additional': '#f16d75',
+    'transport': '#6495ED',
+    'regulatory': '#2E8B57',
+    'resis': '#ed90ed',
+    'other': '#BEBEBE',
+}
+
+export const ANTISMASH_MAP_GK_LABELS = {
+    'Core biosynthetic genes': '#810e15',
+    'Additional biosynthetic genes': '#f16d75',
+    'Transport-related genes': '#6495ED',
+    'Regulatory genes': '#2E8B57',
+    'Resistance genes': '#ed90ed',
+    'Other genes': '#BEBEBE',
+}
+
 /**
  * Get the colour for the COG cateogry.
  * If the category is not mapped then use the R, this also
@@ -96,10 +114,10 @@ export function getCOGColour(cog) {
 }
 
 /**
- * Get the colour for the antiSMASH genecluster cateogry.
+ * Get the colour for the antiSMASH gene_kind.
 */
-export function getAntiSMASHColour(category) {
-    return ANTISMASH_MAP[category] || COLOUR_PRESENCE;
+export function getAntiSMASHColour(kind) {
+    return ANTISMASH_MAP_GK[kind] || ANTISMASH_MAP_GK['other'];
 }
 
 export const COLOUR_PRESENCE = '#ff726e';
