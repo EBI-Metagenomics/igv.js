@@ -38358,10 +38358,15 @@ function getColourBy(feature) {
  * @param feature Feature a feature
  */
 function getLabelBy(feature) {
-    if (!this.config.labelBy) {
+    let regex = undefined;
+    if (this.config.labelBy) {
+        regex = this.labelByRegex;
+    } else if(this.config.colorBy) {
+        regex = new RegExp(this.config.colorBy + '=([^;]+)', 'i'); 
+    } else {
         return undefined;
     }
-    let match = this.labelByRegex.exec(feature.attributeString);
+    let match = regex.exec(feature.attributeString);
     if (!match) {
         return undefined;
     }

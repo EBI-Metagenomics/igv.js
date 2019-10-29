@@ -52629,11 +52629,17 @@ Context.prototype = {
 
 
   function getLabelBy(feature) {
-    if (!this.config.labelBy) {
+    var regex = undefined;
+
+    if (this.config.labelBy) {
+      regex = this.labelByRegex;
+    } else if (this.config.colorBy) {
+      regex = new RegExp(this.config.colorBy + '=([^;]+)', 'i');
+    } else {
       return undefined;
     }
 
-    var match = this.labelByRegex.exec(feature.attributeString);
+    var match = regex.exec(feature.attributeString);
 
     if (!match) {
       return undefined;
