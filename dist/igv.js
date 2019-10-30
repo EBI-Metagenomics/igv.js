@@ -52611,7 +52611,7 @@ Context.prototype = {
         }
       // antiSMASH results
 
-      case 'gene_kinds':
+      case 'as_type':
         {
           // antiSMASH is coloured based on the gene_kind
           return getAntiSMASHColour(value);
@@ -57818,8 +57818,9 @@ Context.prototype = {
     this.$button = $('<div class="igv-nav-bar-button">');
     $parent.append(this.$button);
     this.$button.text('legend');
+    var $legentParent = browser.config.legendParent ? $(browser.config.legendParent) : browser.$parent;
     this.legend = new GenericContainer({
-      $parent: browser.$root,
+      $parent: $legentParent,
       width: 384,
       height: 'auto',
       closeHandler: function closeHandler() {
@@ -57854,7 +57855,7 @@ Context.prototype = {
     for (var _i = 0, _len = asLabels.length; _i < _len; _i++) {
       var _key = asLabels[_i];
 
-      var _$legendEntry = $('<tr class="legend-entry"></tr>');
+      var _$legendEntry = $('<tr class="legend-entry clear"></tr>');
 
       var _$color = $('<td class="legend-color" style="background:' + ANTISMASH_MAP_GK_LABELS[_key] + '"></td>');
 

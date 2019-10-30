@@ -192,7 +192,7 @@ function getColourBy(feature) {
             return getCOGColour(value);
         }
         // antiSMASH results
-        case 'gene_kinds': {
+        case 'as_type': {
             // antiSMASH is coloured based on the gene_kind
             return getAntiSMASHColour(value);
         }

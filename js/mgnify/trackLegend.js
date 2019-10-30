@@ -40,9 +40,10 @@ const TrackLegendControl = function ($parent, browser) {
     this.$button = $('<div class="igv-nav-bar-button">');
     $parent.append(this.$button);
     this.$button.text('legend');
-
+    
+    var $legentParent = (browser.config.legendParent) ? $(browser.config.legendParent) : browser.$parent;
     this.legend = new GenericContainer({
-        $parent: browser.$root,
+        $parent: $legentParent,
         width: 384,
         height: 'auto',
         closeHandler: () => {
@@ -77,7 +78,7 @@ const TrackLegendControl = function ($parent, browser) {
 
     for (let i = 0, len = asLabels.length; i < len; i++) {
         const key = asLabels[i];
-        const $legendEntry = $('<tr class="legend-entry"></tr>');
+        const $legendEntry = $('<tr class="legend-entry clear"></tr>');
         const $color = $('<td class="legend-color" style="background:' + ANTISMASH_MAP_GK_LABELS[key] + '"></td>');
         const $label = $('<td class="legend-label">' + key + '</td>');
         $legendEntry.append($color);
