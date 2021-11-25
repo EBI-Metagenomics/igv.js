@@ -43134,6 +43134,8 @@ const TrackLegendControl = function ($parent, browser) {
 
     const $legendContainter = $('<table class="legend-container"></table>');
 
+    const legendGroups = browser.config.legendGroups || {cog: true, antiSMASH: true, other: true};
+
     /* COG */
     const $cogLegend = $('<table class="sub-legend"><caption>COG</caption></table>');
     const cogs = Object.keys(COG_MAP).sort();
@@ -43173,10 +43175,16 @@ const TrackLegendControl = function ($parent, browser) {
     $abscenceTr.append($('<td class="legend-label">Absence</td>'));
     $otherLegend.append($abscenceTr);
 
-    $legendContainter.append($cogLegend);
-    $legendContainter.append($antiSMLegend);
-    $legendContainter.append($otherLegend);
-    
+    if (legendGroups.cog) {
+        $legendContainter.append($cogLegend);
+    }
+    if (legendGroups.antiSMASH) {
+        $legendContainter.append($antiSMLegend);
+    }
+    if (legendGroups.other) {
+        $legendContainter.append($otherLegend);
+    }
+
     this.legend.$container.append($('<div class="legend-title">Legend</div>'));
     this.legend.$container.append($legendContainter);
 
