@@ -57832,6 +57832,11 @@ Context.prototype = {
     browser.trackLegendVisible = false;
     self.legend.$container.hide();
     var $legendContainter = $('<table class="legend-container"></table>');
+    var legendGroups = browser.config.legendGroups || {
+      cog: true,
+      antiSMASH: true,
+      other: true
+    };
     /* COG */
 
     var $cogLegend = $('<table class="sub-legend"><caption>COG</caption></table>');
@@ -57877,9 +57882,19 @@ Context.prototype = {
     $abscenceTr.append($('<td class="legend-color" style="background:' + COLOUR_ABSENCE + '"></td>'));
     $abscenceTr.append($('<td class="legend-label">Absence</td>'));
     $otherLegend.append($abscenceTr);
-    $legendContainter.append($cogLegend);
-    $legendContainter.append($antiSMLegend);
-    $legendContainter.append($otherLegend);
+
+    if (legendGroups.cog) {
+      $legendContainter.append($cogLegend);
+    }
+
+    if (legendGroups.antiSMASH) {
+      $legendContainter.append($antiSMLegend);
+    }
+
+    if (legendGroups.other) {
+      $legendContainter.append($otherLegend);
+    }
+
     this.legend.$container.append($('<div class="legend-title">Legend</div>'));
     this.legend.$container.append($legendContainter);
     this.$button.on('click', function () {
