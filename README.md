@@ -1,4 +1,13 @@
 # EBI-MGnify notes
+
+## Deprecated
+This fork is no longer used or maintained. Since the [IGV Tracks 2.0 API](https://github.com/igvteam/igv.js/wiki/Tracks-2.0), 
+most of the modifications this fork introduced are possible using the upstream codebase.
+In particular, IGV.js v2.10.1 introduced the [colorBy function](https://github.com/igvteam/igv.js/wiki/Annotation-Track#color-function-igvjs-version-2101).
+
+---
+
+
 The following is a fork of the igv.js project, adapted to include additional functionality used on the MGnify service.
 
 In order to simplify the upgrade the modifications were made (as much as possible) on separate files. The modifications and patch are on the `js/mgnify/` folder.
